@@ -20,6 +20,8 @@ def bubbleSort(A):
       ## Exit if not swapped
       
       return
+    
+return A
         
      
   
