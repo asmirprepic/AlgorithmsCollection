@@ -2,26 +2,24 @@
 
 #### This file implements bubblesort
 
+
+
 def bubbleSort(A):
-  n=len(A)
-  swapped = False
+  n = len(A)
+  swapped = True
   
-  # Loop from last to first
-  for i in range(n-1,0,-1):
-    for j in range(n):
-      
-      ## Swap if element is less than next element
-      if A[j] > A[j+1]:
+  while swapped 
+    swapped = False
+    
+    for i in range(n-1):
+      if A[i] > A[i+1]:
+        A[i],A[i+1] = A[i+1],A[i]
         swapped = True
         
-        A[j],A[j+1]=A[j+1],A[j]
-        
-    if not swapped:
-      ## Exit if not swapped
-      
-      return
-    
-return A
+  return A
+  
+  
+  
         
      
   
