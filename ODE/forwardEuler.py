@@ -1,34 +1,40 @@
-## solving IVP of the type u' = f(u,t), u(0)
 import numpy as np
 import matplotlib.pyplot as plt
 
-def forwardEuler(f,U0,T,N):
+def forwardEuler(F,x,y,xstop,h):
 
-    t = np.zeros(N+1)
-    u = np.zeros(N+1)
+  X = []
+  Y = []
 
-    u[0] = U0
-    t[0] = 0
-    dt = T/N
+  X.append(x)
+  Y.append(y)
 
-    for n in range (N):
-      t[n+1] = t[n]+dt
-      u[n+1] = u[n] + dt*f(u[n],t[n])
+  while x < xstop:
+    h = min(h,xstop-x)
+    y = y + h*F(x,y)
+    x = x+h
+    X.append(x)
+    Y.append(y)
 
-    return u,t
+  return np.array(X),np.array(Y)
 
-def f(u,n):
-  alpha = 0.2
-  R = float(1)
-  U0 = 0.1
-  return alpha*u*(1-u/R)
 
-U0 = 0.1
-T = 40
-N= 4001
-u,t = forwardEuler(f,U0,T,N)
 
-plt.plot(t,u)
+### Solving the ivp y'' = -0.1y'-x, y(0) = 0, y'(0) = 1
+
+def F(x,y):
+  F = np.zeros(2)
+  F[0] = y[1]
+  F[1] = -0.1*y[1]-x
+  return F
+
+x = 0.0
+xstop = 2.0
+y = np.array([0.0,1.0])
+h=0.01
+
+X,Y = forwardEuler(F,x,y,xstop,h)
+plt.plot(X,Y[:,0])
+plt.grid(True)
 plt.show()
 
-  
