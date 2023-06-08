@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  5 23:46:33 2023
 
-@author: XQ966PY
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import gamma
