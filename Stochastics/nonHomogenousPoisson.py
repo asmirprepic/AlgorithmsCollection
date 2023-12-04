@@ -1,3 +1,8 @@
+
+"""
+Simulation of a non-homogenous poisson process with specified intensity function
+"""
+
 import numpy as np
 import math
 from scipy.integrate import quad
