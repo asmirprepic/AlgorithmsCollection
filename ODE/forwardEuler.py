@@ -1,3 +1,8 @@
+""""
+Implementation of a forward euler solver
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
