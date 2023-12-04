@@ -1,3 +1,8 @@
+"""
+Implements the newton rhapson method for soling a equation
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
