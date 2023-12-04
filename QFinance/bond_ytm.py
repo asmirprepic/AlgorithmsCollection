@@ -1,3 +1,7 @@
+"""
+Illustrationg of cacluating the bonds yield to maturity
+"""
+
 import scipy.optimize as optimize
 
 def bond_ytm(price,par,T,coup,freq=2,guess=0.5):
