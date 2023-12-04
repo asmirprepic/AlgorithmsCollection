@@ -1,4 +1,9 @@
 
+"""
+Metropolis-Hastings for sampling from a posterior
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import gamma
