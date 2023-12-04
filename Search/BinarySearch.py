@@ -1,5 +1,6 @@
-### Binary search ###
-
+"""
+This function implements a binary search 
+"""
 def binarySearch(A,e):
   first = 0
   last = len(A)-1
@@ -17,7 +18,7 @@ def binarySearch(A,e):
         first = mid +1
   return index
 
-print(linearSearch([2,2,2,2,2,3,2,2],3))  
+print(binarySearch([2,2,2,2,2,3,2,2],3))  
 
 
 
