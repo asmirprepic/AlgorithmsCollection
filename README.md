@@ -22,7 +22,7 @@ Newton Rhapson:
 Forward Euler:  \
 Runge-Kutta: \
 ODE-System: \
-Using odeint: \ 
+Using odeint: \
 FDT3: 
 
 ### PDE
