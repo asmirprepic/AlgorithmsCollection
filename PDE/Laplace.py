@@ -1,4 +1,7 @@
-### example Laplace equation in 2D
+"""
+Example to solve the lapace equation in 2D
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 def solving():
