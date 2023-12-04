@@ -1,3 +1,20 @@
+
+
+"""
+Simulates interest rate changes using the Cox-Ingersoll-Ross (CIR) model.
+
+Parameters:
+r0 (float): The initial interest rate.
+K (float): The speed of adjustment.
+theta (float): The long-term mean interest rate.
+sigma (float): The volatility of the interest rate.
+T (float): The total time horizon of the simulation.
+N (int): The number of steps in the simulation.
+
+Returns:
+tuple: A tuple containing two lists, the first with time points and the second with simulated interest rates.
+"""
+
 import numpy as np
 import math
 import matplotlib.pyplot as plt
