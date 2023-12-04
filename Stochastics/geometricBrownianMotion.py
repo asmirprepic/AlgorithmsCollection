@@ -1,3 +1,9 @@
+
+"""
+Simulation of a geometric brownian motion
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
