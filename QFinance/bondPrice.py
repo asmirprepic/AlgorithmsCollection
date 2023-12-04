@@ -6,9 +6,25 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 def bond_price(coupon_rate, face_value, time_to_maturity, yield_to_maturity):
-    coupon_payment = coupon_rate * face_value
-    discount_factor = 1 / (1 + yield_to_maturity) ** time_to_maturity
-    present_value = 0
+     """
+    Calculate the price of a bond.
+
+    Parameters:
+    coupon_rate (float): The annual coupon rate of the bond.
+    face_value (float): The face value of the bond.
+    time_to_maturity (int): The time to maturity of the bond in years.
+    yield_to_maturity (float): The yield to maturity of the bond.
+
+    Returns:
+    float: The present value (price) of the bond.
+    """
+
+
+    coupon_payment = coupon_rate * face_value # Annual coupon payment
+    discount_factor = 1 / (1 + yield_to_maturity) ** time_to_maturity # Discount factor for the bond
+    present_value = 0 # Initialize present value
+
+    # Calculate present value of each cash flow
     for t in range(1, time_to_maturity + 1):
         cash_flow = coupon_payment if t < time_to_maturity else coupon_payment + face_value
         present_value += cash_flow * discount_factor ** t
@@ -25,8 +41,6 @@ print("The price of the bond is:", round(price, 2))
 
 
 ### 3D plot of bond Price
-
-
 yields = np.linspace(0.01, 0.1, 10)  # Range of yields
 times = np.arange(1, 21)  # Range of times to maturity
 
