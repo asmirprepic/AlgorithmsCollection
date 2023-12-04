@@ -1,4 +1,8 @@
 
+"""
+Simulation of sht noise processes on a disc
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
