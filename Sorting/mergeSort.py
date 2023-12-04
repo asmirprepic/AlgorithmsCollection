@@ -1,3 +1,7 @@
+"""
+Implementationof merge sort
+"""
+
 def mergeSort(A):
   if len(A)>1:
 
