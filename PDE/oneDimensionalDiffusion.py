@@ -1,7 +1,9 @@
+"""
+Solvng the 1D diffusion equation
+"""
 
 
 
-## Solve the 1D duffusion equation with 
 
 import numpy 
 from matplotlib import pyplot
