@@ -1,4 +1,7 @@
-### Fibonacci search ###
+""" 
+Implementation of fibonacciSearch 
+
+"""
 def fibonacciSearch(A,e):
   firstElement = 0
   secondElement = 1
