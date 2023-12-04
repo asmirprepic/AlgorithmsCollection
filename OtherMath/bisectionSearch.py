@@ -1,3 +1,7 @@
+"""
+Performs the bysection search for a equation
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
