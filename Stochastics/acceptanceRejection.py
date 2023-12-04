@@ -1,3 +1,8 @@
+"""
+Implementation of a acceptance rejection algorithm 
+"""
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
