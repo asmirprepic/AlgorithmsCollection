@@ -1,3 +1,5 @@
+""" Imlementationof linear search """
+
 import numpy as np
 
 ## Linear Search ## 
