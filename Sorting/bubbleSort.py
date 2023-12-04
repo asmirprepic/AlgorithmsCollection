@@ -1,6 +1,7 @@
 
-
-#### This file implements bubblesort
+"""
+Implementation of bubble sort
+"""
 
 
 
