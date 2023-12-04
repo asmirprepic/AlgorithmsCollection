@@ -1,3 +1,7 @@
+"""
+This function implements interpolationsearch
+"""
+
 def int_polsearch(list,x):
   idx0 = 0
   idxn = (len(list)-1)
