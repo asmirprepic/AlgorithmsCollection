@@ -53,6 +53,8 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Bootstrap Yield Curve](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/bootStrapYieldCurve.py) 
 - [Forward Rates](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/forwardRates.py) 
 - [Vanilla Call Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/vanillaCall.py)
+- [Black-Scholes](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/black_scholes.py)
+- [Binomial Tree Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/binomial_option.py)
 
 
 
