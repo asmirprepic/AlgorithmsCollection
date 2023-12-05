@@ -43,6 +43,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Linear Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Search/linearSearch.py)
 
 # Stochastics
+- [2D Brownian motion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/2D_brownianMotion.py)
 - [CIR](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/CIR.py) 
 - [Vasicek](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/vasicek.py) 
 - [Acceptance Rejection](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/acceptanceRejection.py) 
@@ -52,6 +53,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Shot Noise Process](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/nonHomogenousPoisson.py) 
 - [Ruin Probability](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/ruinProbability.py)
 - [Metropolis Hastings](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/metropolisHastingsExample.py)
+  
 
 # Q Finance
 - [Bond Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/bondPrice.py) 
