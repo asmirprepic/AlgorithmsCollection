@@ -11,8 +11,8 @@ This repository is a collection of interesting algorrithms that I have come acro
 ## Optimization
 - [Bisection Search](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/beisectionSearch.py) \
 - [Incremental Search](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/incrementalSearch.py) \
-- [Secant](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/secant.py): \
-- [Newton Rhapson](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/newton_rhapson.py): 
+- [Secant](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/secant.py) \
+- [Newton Rhapson](https://github.com/asmirprepic/AlgorithmCollection/blob/main/OtherMath/newton_rhapson.py)
 
 ## Differential Equations
 
@@ -52,7 +52,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Bond YTM](https://github.com/asmirprepic/AlgorithmCollection/blob/main/QFinance/bond_ytm.py) \
 - [Bootstrap Yield Curve](https://github.com/asmirprepic/AlgorithmCollection/blob/main/QFinance/bootStrapYieldCurve.py) \
 - [Forward Rates](https://github.com/asmirprepic/AlgorithmCollection/blob/main/QFinance/forwardRates.py) \
-- [Vanilla Call Option](https://github.com/asmirprepic/AlgorithmCollection/blob/main/Stochastics/vanillaCall.py): 
+- [Vanilla Call Option](https://github.com/asmirprepic/AlgorithmCollection/blob/main/Stochastics/vanillaCall.py)
 
 
 
