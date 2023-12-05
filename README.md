@@ -24,7 +24,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [FDT3](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/odeintsollution.py) 
 
 ### PDE
-- [1D Wave](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/1Dwave.py) 
+- [1D Wave](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/1DWave.py) 
 - [2D Heat](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/2DHeat.py) 
 - [2D Poisson](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/2DPoisson.py) 
 - [Laplace](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/Laplace.py) 
