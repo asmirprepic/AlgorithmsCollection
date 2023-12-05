@@ -68,6 +68,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Finite Difference Black-Scholes](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/bs_finite_difference.py)
 - [Forward Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/forward_price.py)
 - [Swap Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/swap_price.py)
+- [Long Call Butterfly Payoff](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/long_call_bf.py)
 
 
 
