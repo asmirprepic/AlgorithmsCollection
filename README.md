@@ -44,6 +44,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 
 # Stochastics
 - [2D Brownian motion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/2D_brownianMotion.py)
+- [3D Brownian motion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/2D_brownian_motion.py)
 - [CIR](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/CIR.py) 
 - [Vasicek](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/vasicek.py) 
 - [Acceptance Rejection](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/acceptanceRejection.py) 
