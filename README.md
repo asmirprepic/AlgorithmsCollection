@@ -7,7 +7,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 # Mathematics
 
 ## Algebra
-
+[Lagrange Interpolation](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Algebra/lagrange_interpolation.py) 
 ## Optimization
 - [Bisection Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/bisectionSearch.py) 
 - [Incremental Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/incrementalSearch.py) 
