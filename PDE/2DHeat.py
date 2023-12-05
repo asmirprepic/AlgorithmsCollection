@@ -1,5 +1,5 @@
 """
-Solveing 2D Heat equation
+Solving 2D Heat equation
 """
 
 import numpy as np
