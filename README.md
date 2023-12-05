@@ -34,7 +34,13 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Bubble sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/bubbleSort.py)  
 - [Insertion sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/insertionSort.py) 
 - [Merge sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/mergoSort.py) 
-- [Selection sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/selectionSort.py)  
+- [Selection sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/selectionSort.py)
+
+# Search
+- [Binary Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Search/BinarySearch.py)
+- [Interpolation Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Search/InterpolationSearch.py)
+- [Fibonacci Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Search/fibonacciSearch.py)
+- [Linear Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Search/linearSearch.py)
 
 # Stochastics
 - [CIR](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/CIR.py) 
