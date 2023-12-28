@@ -66,6 +66,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Black-Scholes](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/black_scholes.py)
 - [Binomial Tree Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/binomial_option.py)
 - [Finite Difference Black-Scholes](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/bs_finite_difference.py)
+- [Implied Volatility](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/implied_volatility.py)
 - [Forward Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/forward_price.py)
 - [Swap Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/swap_price.py)
 - [Long Call Butterfly Payoff](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/long_call_bf.py)
