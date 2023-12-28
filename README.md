@@ -14,8 +14,11 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Secant](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/secant.py) 
 - [Newton Rhapson](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/newton_rhapson.py)
 
-## Differential Equations
+## Various
+-[Derivative](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/derivative_func.py) 
 
+
+## Differential Equations
 ### ODE
 - [Forward Euler](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/forwardEuler.py) 
 - [Runge Kutta](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/RK4.py)  
