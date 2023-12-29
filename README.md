@@ -15,7 +15,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Newton Rhapson](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/newton_rhapson.py)
 
 ## Various
--[Derivative](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/derivative_func.py) 
+- [Derivative](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/derivative_func.py) 
 
 
 ## Differential Equations
