@@ -58,6 +58,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Shot Noise Process](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/nonHomogenousPoisson.py) 
 - [Ruin Probability](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/ruinProbability.py)
 - [Metropolis Hastings](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/metropolisHastingsExample.py)
+- [Discrete Markov Chain](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/discrete_mc.py)
   
 
 # Q Finance
