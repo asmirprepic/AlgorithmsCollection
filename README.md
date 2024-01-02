@@ -31,7 +31,8 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [2D Heat](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/2DHeat.py) 
 - [2D Poisson](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/2DPoisson.py) 
 - [Laplace](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/Laplace.py) 
-- [1D Diffusion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/ondeDimensionalDiffusion.py)  
+- [1D Diffusion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/ondeDimensionalDiffusion.py)
+- [Cranck-Nicholson 1D Heat](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/cranck_nicolson_heat.py)
 
 # Sorting
 - [Bubble sort](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Sorting/bubbleSort.py)  
