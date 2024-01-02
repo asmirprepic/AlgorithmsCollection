@@ -24,7 +24,8 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Runge Kutta](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/RK4.py)  
 - [ODE-System](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/odeSystem.py)  
 - [Using odeint](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/odeintsolution.py)
-- [FDT3](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/odeintsollution.py) 
+- [FDT3](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/odeintsollution.py)
+- [Finite Difference Boundary Value Problem](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/finite_differece_boundary_value.py)
 
 ### PDE
 - [1D Wave](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/1DWave.py) 
