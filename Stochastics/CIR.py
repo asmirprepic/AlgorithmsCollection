@@ -24,7 +24,7 @@ def CIR(r0,K,theta,sigma,T=1,N=10):
     rates = [r0]
     for i in range(N):
         dr=K*(theta-rates[-1])*dt+sigma*np.sqrt(rates[-1])*np.sqrt(dt)*np.random.normal()
-        print(dr)
+        
         rates.append(rates[-1]+dr)
     return range(N+1), rates
 
