@@ -76,6 +76,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Forward Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/forward_price.py)
 - [Swap Price](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/swap_price.py)
 - [Long Call Butterfly Payoff](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/long_call_bf.py)
+- [Long Straddle Payoff](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/long_straddle.py)
 - [Least Squares Monte Carlo American Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/LSMC_american_option.py)
 - [Cranck-Nicholson European Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/cranck_nicholson_european_option.py)
 
