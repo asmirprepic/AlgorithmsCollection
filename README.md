@@ -69,6 +69,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Bootstrap Yield Curve](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/bootStrapYieldCurve.py) 
 - [Forward Rates](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/forwardRates.py)
 - [Nelson Siegel](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/nelson_siegel.py)
+- [Caplet](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/caplet_price.py)
 - [Convexity & Duration](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/convexity_duration.py) 
 - [Vanilla Call Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/vanillaCall.py)
 - [Black-Scholes](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/black_scholes.py)
