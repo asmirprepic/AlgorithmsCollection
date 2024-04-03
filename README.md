@@ -63,6 +63,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Discrete Markov Chain](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastics/discrete_mc.py)
 - [Langevin Equation](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/langevin_equation.py)
 - [Predator-Prey Stochastic](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/predator_prey_stochastic.py)
+- [Stochastic Integral Example](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_integration.py)
   
 
 # Q Finance
