@@ -28,6 +28,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Finite Difference Boundary Value Problem](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/finite_differece_boundary_value.py)
 - [Logistic Equation Euler Solution](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/logistic_equation_euler.py)
 - [Hydraulic Head](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/hydraulic_head.py)
+- [Projectile Motion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/projectile_motion.py)
 
 ### PDE
 - [1D Wave](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/1DWave.py) 
