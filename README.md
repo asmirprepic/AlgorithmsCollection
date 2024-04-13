@@ -68,6 +68,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Predator-Prey Stochastic](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/predator_prey_stochastic.py)
 - [Stochastic Integral Example](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_integration.py)
 - [Stochastic Runge Kutta](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_runge_kutta.py)
+- [HMM](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/hmm.py)
   
 
 # Q Finance
