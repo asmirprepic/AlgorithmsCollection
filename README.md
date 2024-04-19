@@ -29,6 +29,8 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Logistic Equation Euler Solution](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/logistic_equation_euler.py)
 - [Hydraulic Head](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/hydraulic_head.py)
 - [Projectile Motion](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/projectile_motion.py)
+- [Drone Flight Path](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/drone_flight_path.py)
+- [Fitting ODE to data](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/ODE/fit_ode_data.py)
 
 ### PDE
 - [1D Wave](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/PDE/1DWave.py) 
@@ -69,6 +71,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Stochastic Integral Example](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_integration.py)
 - [Stochastic Runge Kutta](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_runge_kutta.py)
 - [HMM](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/hmm.py)
+- [Monty Hall Simul.](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastic/hmm.py)
   
 
 # Q Finance
