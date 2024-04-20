@@ -72,6 +72,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Stochastic Runge Kutta](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/stochastic_runge_kutta.py)
 - [HMM](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/hmm.py)
 - [Monty Hall Simul.](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastic/hmm.py)
+- [Continous Time Markov Chain](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/Stochastic/ctmc.py)
   
 
 # Q Finance
