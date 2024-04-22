@@ -13,6 +13,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Incremental Search](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/incrementalSearch.py) 
 - [Secant](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/secant.py) 
 - [Newton Rhapson](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/newton_rhapson.py)
+- [Constrained optimization](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/constr_optim.py)
 
 ## Various
 - [Derivative](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/OtherMath/derivative_func.py) 
