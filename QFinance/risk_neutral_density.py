@@ -3,6 +3,32 @@ import pandas as pd
 from scipy.stats import norm
 from scipy.interpolate import interp1d
 from scipy.integrate import simps  # Simpson's rule for numerical integration
+import matplotlib.pyplot as plt
+
+def black_scholes_price(S, K, T, r, sigma, option_type='call'):
+    """
+    Compute the Black-Scholes price of a European option.
+
+    Parameters:
+    - S: Current stock price
+    - K: Option strike price
+    - T: Time to expiration in years
+    - r: Risk-free interest rate
+    - sigma: Volatility
+    - option_type: 'call' or 'put'
+
+    Returns:
+    - Option price
+    """
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    
+    if option_type == 'call':
+        price = S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+    elif option_type == 'put':
+        price = K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+    
+    return price
 
 def estimate_risk_neutral_density(options, S, T, r):
     """
@@ -28,21 +54,12 @@ def estimate_risk_neutral_density(options, S, T, r):
         C_plus = options.loc[i+1, 'price']
         
         second_derivative = (C_minus - 2*C + C_plus) / (delta_K**2)
-        options.loc[i, 'density'] = second_derivative
-
+        options.loc[i, 'density'] = np.exp(r * T) * second_derivative / (S * S)
+    
     # Interpolate densities for a smoother curve if necessary
     density_interpolation = interp1d(options['strike'], options['density'], fill_value="extrapolate")
     
     return options
-
-# Example usage
-# options = pd.DataFrame({
-#     'strike': [...],  # Strike prices
-#     'price': [...],   # Option prices
-#     'iv': [...]       # Implied volatilities
-# })
-# result = estimate_risk_neutral_density(options, S=100, T=0.5, r=0.01)
-
 
 # Generate a synthetic dataset
 np.random.seed(42)  # For reproducibility
@@ -53,9 +70,7 @@ T = 1.0  # Time to expiration in years
 r = 0.05  # Risk-free rate
 
 # Calculate option prices using Black-Scholes formula for calls
-# Note: This is a simplified approach and skips some steps for brevity
-option_prices = S * norm.cdf((np.log(S / strike_prices) + (r + true_iv**2 / 2) * T) / (true_iv * np.sqrt(T))) - \
-                strike_prices * np.exp(-r * T) * norm.cdf((np.log(S / strike_prices) + (r - true_iv**2 / 2) * T) / (true_iv * np.sqrt(T)))
+option_prices = black_scholes_price(S, strike_prices, T, r, true_iv, option_type='call')
 
 # Create DataFrame
 options_df = pd.DataFrame({
