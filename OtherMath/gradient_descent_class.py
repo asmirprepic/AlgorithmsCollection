@@ -21,19 +21,13 @@ class GradientDescent:
         self.epsilon = epsilon
         self.constraints = constraints if constraints else []
 
-    def numerical_gradient(self, x):
-        """
-        Estimate the gradient of the function at x using finite differences.
-
-        :param x: The point at which to estimate the gradient.
-        :return: The estimated gradient.
-        """
+    def numerical_gradient(self, x, *args):
         grad = np.zeros_like(x)
-        fx = self.func(*x)
+        fx = self.func(x, *args)
         for i in range(len(x)):
             x_eps = x.copy()
             x_eps[i] += self.epsilon
-            grad[i] = (self.func(*x_eps) - fx) / self.epsilon
+            grad[i] = (self.func(x_eps, *args) - fx) / self.epsilon
         return grad
 
     def project(self, x):
@@ -47,20 +41,12 @@ class GradientDescent:
             x = constraint(x)
         return x
 
-    def optimize(self, start):
-        """
-        Perform gradient descent optimization with optional constraints.
-
-        :param start: The starting point for the optimization.
-        :return: The found minimum point and the history of points.
-        """
+    def optimize(self, start, *args):
         x = np.array(start, dtype=float)
         history = [x.copy()]
         for _ in range(self.max_iter):
-            grad = self.numerical_gradient(x)
+            grad = self.numerical_gradient(x, *args)
             x = x - self.learning_rate * grad
-            if self.constraints:
-                x = self.project(x)
             history.append(x.copy())
             if np.linalg.norm(grad) < self.tolerance:
                 break
@@ -83,37 +69,38 @@ def constraint3(x):
 def func(x, y, z):
     return (x - 2)**2 + (y - 3)**2 + z
 
+def testing():
 # Parameters
-start = [0.0, 0.0, 0.0]
-learning_rate = 0.1
-max_iter = 1000
-tolerance = 1e-6
+    start = [0.0, 0.0, 0.0]
+    learning_rate = 0.1
+    max_iter = 1000
+    tolerance = 1e-6
 
-# Create GradientDescent instance with constraints
-gd = GradientDescent(func, learning_rate, max_iter, tolerance, constraints=[constraint1, constraint2, constraint3])
+    # Create GradientDescent instance with constraints
+    gd = GradientDescent(func, learning_rate, max_iter, tolerance, constraints=[constraint1, constraint2, constraint3])
 
-# Run optimization
-min_point, history = gd.optimize(start)
+    # Run optimization
+    min_point, history = gd.optimize(start)
 
-# Results
-print(f"Minimum point: {min_point}")
-print(f"Minimum value: {func(*min_point)}")
+    # Results
+    print(f"Minimum point: {min_point}")
+    print(f"Minimum value: {func(*min_point)}")
 
-# Plotting the function and the descent path in 3D
-fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111, projection='3d')
-X, Y, Z = np.meshgrid(np.linspace(-1, 4, 100),
-                      np.linspace(0, 6, 100),
-                      np.linspace(-1, 2, 100))
-values = np.array([func(x, y, z) for x, y, z in zip(X.ravel(), Y.ravel(), Z.ravel())])
-values = values.reshape(X.shape)
+    # Plotting the function and the descent path in 3D
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = np.meshgrid(np.linspace(-1, 4, 100),
+                        np.linspace(0, 6, 100),
+                        np.linspace(-1, 2, 100))
+    values = np.array([func(x, y, z) for x, y, z in zip(X.ravel(), Y.ravel(), Z.ravel())])
+    values = values.reshape(X.shape)
 
-ax.plot_surface(X[:, :, 0], Y[:, :, 0], values[:, :, 0], alpha=0.5, cmap='viridis')
-ax.plot(history[:, 0], history[:, 1], history[:, 2], 'ro-', label='Gradient Descent Path')
-ax.scatter(min_point[0], min_point[1], min_point[2], color='b', label='Minimum Point')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
-ax.set_title('Gradient Descent Optimization with Constraints in 3D')
-ax.legend()
-plt.show()
+    ax.plot_surface(X[:, :, 0], Y[:, :, 0], values[:, :, 0], alpha=0.5, cmap='viridis')
+    ax.plot(history[:, 0], history[:, 1], history[:, 2], 'ro-', label='Gradient Descent Path')
+    ax.scatter(min_point[0], min_point[1], min_point[2], color='b', label='Minimum Point')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.set_title('Gradient Descent Optimization with Constraints in 3D')
+    ax.legend()
+    plt.show()
