@@ -1,3 +1,5 @@
+import numpy as np
+
 class InterestRateSwapMonteCarlo:
     def __init__(self, notional, fixed_rate, initial_floating_rate, years_to_maturity, payments_per_year, discount_curve, sigma, num_simulations):
         self.notional = notional
