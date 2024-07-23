@@ -16,11 +16,16 @@ def total_cost(v):
 def d_total_cost_dv(v):
     return 2 * a * v * D + b * D - (k * D) / v**2
 
+def finite_difference_gradient(f,x,h = 1e-5):
+    grad_x = (f(x+h) - f(x))/h
+    return grad_x
+
 # Newton-Raphson method
 def newton_raphson(f, df, x0, tol=1e-6, max_iter=1000):
     x = x0
     for i in range(max_iter):
-        x_new = x - f(x) / df(x)
+        grad = finite_difference_gradient(f,x)
+        x_new = x - f(x) / grad
         if abs(x_new - x) < tol:
             return x_new
         x = x_new
