@@ -21,7 +21,7 @@ def a_star_algorithm(start,goal,grid):
 
             while current in came_from: 
                 path.append(current)
-                current = came_from{current}
+                current = came_from[current]
             path.append(start)
             path.reverse()
 
@@ -29,7 +29,7 @@ def a_star_algorithm(start,goal,grid):
         
         for i,j in neighbours:
             neighbour = (current[0]+i,current[1] + j)
-            temp_g_score = g_score{current} + 1
+            temp_g_score = g_score[current] + 1
 
             if 0 <= neighbour[0] < grid.shape[0] and 0 <= neighbour[1] < grid.shape[1]:
                 if grid[neighbour[0]][neighbour[1]] == 1:
