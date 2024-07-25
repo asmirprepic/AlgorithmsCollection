@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.random import normal as norm
+
 class CapFloor:
     def __init__(self, notional, cap_rate, floor_rate, time_to_maturity, payments_per_year, discount_curve, volatility):
         self.notional = notional

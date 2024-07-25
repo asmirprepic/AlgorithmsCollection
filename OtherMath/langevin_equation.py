@@ -1,4 +1,4 @@
-mport numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 
 def langevin_equation(steps, dt, gamma, D, x0):
