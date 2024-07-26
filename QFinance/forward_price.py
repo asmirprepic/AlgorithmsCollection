@@ -1,3 +1,5 @@
+import numpy as np
+
 def price_forward(S, r, T):
     """
     Calculate the theoretical price of a forward contract.
