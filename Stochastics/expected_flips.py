@@ -7,3 +7,4 @@ def expected_flips(n):
 # Calculate the expected number of flips to get 3 heads
 expected_number_of_flips = expected_flips(3)
 print(f"The expected number of flips until the third heads appears is {expected_number_of_flips}")
+print("this is cool")
