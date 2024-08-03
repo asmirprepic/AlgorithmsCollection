@@ -1,5 +1,5 @@
 """
-Illustrationg of cacluating the bonds yield to maturity
+Illustration of cacluating a bond ytm
 """
 
 import scipy.optimize as optimize

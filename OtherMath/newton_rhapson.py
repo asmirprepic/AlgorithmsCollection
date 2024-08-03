@@ -1,5 +1,5 @@
 """
-Implements the newton rhapson method for soling a equation
+Implementation of the newton rhapson 
 """
 
 
