@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 def bond_price(coupon_rate, face_value, time_to_maturity, yield_to_maturity):
-     """
+    """
     Calculate the price of a bond.
 
     Parameters:
