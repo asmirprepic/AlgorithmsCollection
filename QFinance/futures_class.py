@@ -1,3 +1,6 @@
+from scipy.optimize import brentq
+import numpy as np
+
 class FuturesAnalysis(Derivative):
     def __init__(self, S, K, T, r, sigma):
         super().__init__(S, K, T, r, sigma)
