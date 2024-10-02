@@ -1,4 +1,5 @@
 import numpy as np
+""" Not sure if this is actually valid"""
 
 
 def heuristic(a,b):
