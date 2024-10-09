@@ -1,5 +1,5 @@
 """
-Performs the bysection search for a equation
+Performs the bisection search for a equation
 """
 
 import numpy as np
