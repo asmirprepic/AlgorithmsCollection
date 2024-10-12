@@ -6,15 +6,15 @@ class StructuredProductPrice:
     Initalize the structure product price
     Parameters: 
     ---------------
-    S0
-    K
-    T
-    r
-    sigma
-    face_value
-    participation_rate
-    num_simulations
-    num_steps
+    S0: Inital stock price
+    K: Strice price
+    T: Time to maturity
+    r: Risk free rate
+    sigma: volatility
+    face_value: Bond face value
+    participation_rate: Participation rate on the upside movement
+    num_simulations: Number of monte carlo simulations
+    num_steps: Time steps for monte carlo simulation
     """
 
     self.S0 = S0
@@ -37,12 +37,14 @@ class StructuredProductPrice:
 
     """
     dt = self.T / self.num_steps
-        Z = np.random.normal(0, 1, (self.num_simulations, self.num_steps))  # Vectorized Brownian motion
-        asset_paths = np.zeros((self.num_simulations, self.num_steps + 1))
-        asset_paths[:, 0] = self.S0
+    Z = np.random.normal(0, 1, (self.num_simulations, self.num_steps))  # Vectorized Brownian motion
+    asset_paths = np.zeros((self.num_simulations, self.num_steps + 1))
+    asset_paths[:, 0] = self.S0
         
-        for t in range(1, self.num_steps + 1):
-            asset_paths[:, t] = asset_paths[:, t-1] * np.exp((self.r - 0.5 * self.sigma**2) * dt + self.sigma * np.sqrt(dt) * Z[:, t-1])
+    for t in range(1, self.num_steps + 1):
+      asset_paths[:, t] = asset_paths[:, t-1] * np.exp((self.r - 0.5 * self.sigma**2) * dt + self.sigma * np.sqrt(dt) * Z[:, t-1])
+    return asset_paths
+
   def price_bond(self):
     """
     Price of the zero coupon bond
