@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Model parameters
-num_factors = 4
+num_factors = 3
 num_simulations = 1000
 num_steps = 252  # daily steps for 1 year
 T = 1.0  # time horizon in years
