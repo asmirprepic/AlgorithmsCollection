@@ -21,7 +21,7 @@ t = np.linspace(0, T, M + 1)
 S = np.zeros((M + 1, I))
 S[0] = S0
 for i in range(1, M + 1):
-    Z = np.random.standard_normal(I // 2)  # Pseudo-random numbers
+    Z = np.random.standard_normal(I // 2)  
     Z = np.concatenate((Z, -Z))  # Antithetic variates
     S[i] = S[i - 1] * np.exp((r - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * Z)
 
