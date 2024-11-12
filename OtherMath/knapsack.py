@@ -1,6 +1,6 @@
 import numpy as np
 
-def knapsack(values, weights, capacity):
+def knapsack(values: np.ndarray, weights:np.ndarray, capacity:int):
     n = len(values)
     
     # Create a (n+1) x (capacity+1) matrix to store the maximum values
