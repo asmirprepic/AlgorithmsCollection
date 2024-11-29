@@ -39,4 +39,7 @@ class CommodityShockSimulator:
             shocked_paths[commodity] = path * shock_multiplier
             logging.info("Applied %s shock to %s.", shock_level, commodity)
         
+        
+        
+        
         return shocked_paths
