@@ -2,7 +2,6 @@ import numpy as np
 def almgren_chriss(T:float,X:float,N:int,sigma:float,eta:float,gamma:float,alpha:float) -> dict:
   """
   Almgren Chriss for optional trading execution strategy. 
-
   Parameters: 
   T: Time horizon for the trade
   X: Initial number of shares
