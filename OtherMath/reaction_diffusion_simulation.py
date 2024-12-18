@@ -36,4 +36,16 @@ plt.colorbar(label="Volatility")
 plt.xlabel("Time (years)")
 plt.ylabel("Assets")
 plt.title("Spatial and Temporal Evolution of Volatility")
-plt.show(
+plt.show()
+
+def logistic_growth(v, alpha, K):
+    return alpha * v * (1 - v / K)
+
+# Estimate Parameters from Simulated Data
+def estimate_parameters(v_evolution, dt):
+    time_series = v_evolution[:, L//2]  # Extract volatility at the center asset
+    dv_dt = np.gradient(time_series, dt)  # Time derivative of volatility
+    
+    # Fit the logistic growth model
+    popt, _ = curve_fit(logistic_growth, time_series, dv_dt, p0=[0.5, 1.0])
+    return popt
