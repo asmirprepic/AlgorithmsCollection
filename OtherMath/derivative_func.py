@@ -11,7 +11,6 @@ def derivative(f,a,method='central',h=0.01):
         Difference formula: 'forward', 'backward' or 'central'
     h : number
         Step size in difference formula
-
     Returns
     -------
     float
