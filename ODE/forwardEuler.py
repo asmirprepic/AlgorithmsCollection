@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 def forwardEuler(F,x,y,xstop,h):
 
-  X = []
+  X = [] 
   Y = []
 
   X.append(x)
@@ -41,5 +41,6 @@ h=0.01
 X,Y = forwardEuler(F,x,y,xstop,h)
 plt.plot(X,Y[:,0])
 plt.grid(True)
+
 plt.show()
 
