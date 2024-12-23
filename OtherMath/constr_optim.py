@@ -4,8 +4,6 @@ The problem to solve is the mass of a piston with contriants on volume and stres
 for the piston. 
 """
 
-
-
 import numpy as np
 from scipy.optimize import minimize
 
