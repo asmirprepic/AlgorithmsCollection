@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def solve_bvp(L, n, k, f):
     # L: Length of the beam
     # n: Number of intervals (n+1 points)
-    # k: Stiffness constant
+    # k: Stiffness constan
     # f: External force function
     
     # Setup
