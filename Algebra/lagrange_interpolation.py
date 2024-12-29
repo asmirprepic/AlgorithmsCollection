@@ -5,7 +5,7 @@ def lagrange_interpolation(x_points, y_points, x):
     Interpolate using the Lagrange polynomial.
 
     Parameters:
-    x_points (list): x-coordinates of data points.
+    x_points (list): x-coordinates of data points
     y_points (list): y-coordinates of data points.
     x (float): The x-value to interpolate.
 
