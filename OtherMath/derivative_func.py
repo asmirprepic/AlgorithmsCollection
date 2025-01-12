@@ -1,6 +1,5 @@
 def derivative(f,a,method='central',h=0.01):
     '''Compute the difference formula for f'(a) with step size h.
-
     Parameters
     ----------
     f : function
