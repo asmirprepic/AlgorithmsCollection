@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 
 # Parameters
 c = 1  # Wave speed
-nx = 100  # Number of spatial steps
+nx = 1000  # Number of spatial steps
 dx = 2 * np.pi / nx  # Spatial step size
 dt = 0.01  # Time step size
-nt = 100  # Number of time steps
+nt = 1000  # Number of time steps
 
 # Initial condition
 x = np.linspace(0, 2 * np.pi, nx)
