@@ -12,6 +12,7 @@ def lagrange_interpolation(x_points, y_points, x):
     Returns:
     float: Interpolated y-value at x.
     """
+    
     sum = 0
     n = len(x_points)
     for i in range(n):
