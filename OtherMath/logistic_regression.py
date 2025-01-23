@@ -7,4 +7,6 @@ def logistic_regression(X,y,lr=0.001,epochs = 1000):
   for _ in range(epochs):
     linear_model = np.dot(X,weights)
     predictions = sigmoid(linear_model)
-    gradient = np.dot(X,(predictions.
+    gradient = np.dot(X.T,(predictions-y))/y.size
+    weights -= lr*model
+  return weights
