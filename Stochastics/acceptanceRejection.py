@@ -2,14 +2,13 @@
 Implementation of a acceptance rejection algorithm 
 """
 
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.special import gamma
 import seaborn as sns
 sns.set()
-np.random.seed(123)
+np.random.seed(12345)
 
 def f1(x):
     a = 2.7
