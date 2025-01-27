@@ -61,7 +61,26 @@ class NaiveBayes:
         class_probs[cls] = prior*likelihood
       predictions.append(max(class_probs, key = class_probs.get))
 
-  def _gaussian_pdf
+ def _gaussian_pdf(self, x: List[float], mean: np.ndarray, std: np.ndarray) -> List[float]:
+        """
+        Calculates the probability density function of a Gaussian distribution.
+
+        Args:
+            x: Input data point.
+            mean: Mean of the Gaussian distribution.
+            std: Standard deviation of the Gaussian distribution.
+
+        Returns:
+            A list of probability densities for each feature.
+        """
+        probs = []
+        for xi, mu, sigma in zip(x, mean, std):
+            if sigma > 0:  
+                probs.append((1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((xi - mu) / sigma)**2))
+            else:
+                
+                probs.append(1.0 if xi == mu else 0.0)
+        return probs
                              
                              
     
