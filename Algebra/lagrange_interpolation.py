@@ -4,6 +4,8 @@ def lagrange_interpolation(x_points, y_points, x):
     """
     Interpolate using the Lagrange polynomial.
 
+    Comment: really simple fpr testig
+    
     Parameters:
     x_points (list): x-coordinates of data points
     y_points (list): y-coordinates of data points.
@@ -12,7 +14,6 @@ def lagrange_interpolation(x_points, y_points, x):
     Returns:
     float: Interpolated y-value at x.
     """
-    
     sum = 0
     n = len(x_points)
     for i in range(n):
