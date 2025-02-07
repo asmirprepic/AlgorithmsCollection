@@ -14,6 +14,17 @@ def cds_price(notional: price, recovery_rate: float, credit_spred: float, discou
     - protection_leg_value (float): Present value of the protection leg (expected default)
   """
 
+  if not (0 <= recovery_rate <= 1):
+        raise ValueError("Recovery rate must be between 0 and 1.")
+  if credit_spread < 0:
+      raise ValueError("Credit spread must be non-negative.")
+  if discount_rate < 0:
+    raise ValueError("Discount rate must be non-negative.")
+  if maturity <= 0:
+    raise ValueError("Maturity must be positive.")
+  if payment_freq <= 0:
+    raise ValueError("Payment frequency must be positive.")
+
   # Derived constant hazard rate
   hazard_rate = credit_spread/(1-recovery_rate)
   time_steps = np.arange(1, maturity*payment_freq +1)/payment_freq
