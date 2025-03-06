@@ -33,6 +33,7 @@ class CommodityShockSimulator:
         Apply extreme shock scenarios to each commodity.
         - shock_level: Multiplier indicating the severity of the price shock.
         """
+        
         shocked_paths = {}
         for commodity, path in paths.items():
             shock_multiplier = self.shock_scenarios[shock_level]
