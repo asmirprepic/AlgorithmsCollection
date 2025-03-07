@@ -13,6 +13,7 @@ class CallableBondPricer:
         - The risk-neutral probability is set to p (default 0.5 for a symmetric tree).
     """
 
+
     def __init__(
         self,
         r0: float,
