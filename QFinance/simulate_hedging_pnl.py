@@ -1,6 +1,7 @@
 def simulate_hedging_pnl(S0, K, B, T, r, sigma, hedge_freq, vol_scenario):
     """
     Simulate P&L variance for hedging a barrier option.
+    
     """
     dt = T / hedge_freq
     n_steps = int(T / dt)
