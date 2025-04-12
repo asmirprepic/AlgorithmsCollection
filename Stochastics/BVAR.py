@@ -56,5 +56,13 @@ class BVAR:
 
       residuals = self.Y_target - self.X @ A.T
       S_post = S0 + residuals.T @ residuals
-      Sigma = invwishart.rvs
+      Sigma = invwishart.rvs(df = nu0 + len(self.Y_target), scale = S_post)
+
+      if  it >= burn_in: 
+        A_samples.append(A.copy())
+        Sigma_samples.append(Sigma.copy())
+
+  self.A_samples = np.array(A_samples)
+  self.Sigma_samples = np.array(Sigma_samples)
+
       
