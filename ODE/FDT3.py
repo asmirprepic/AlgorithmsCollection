@@ -1,4 +1,6 @@
 ## Finite difference example for y'' = -4y + 4x , y(0) = 0, y'(pi/2) = 0
+import numpy as np
+import matplotlib.pyplot as plt
 
 def FDequations(x,h,m):
   h2 = h*h
