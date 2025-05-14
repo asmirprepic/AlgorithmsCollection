@@ -1,3 +1,6 @@
+import numpy as np
+import scipy
+
 def solve_truncated_exponential_pde(lambda_: float, c: float, N: int = 100, T: float = 1.0) -> np.ndarray:
     """
     Solve a truncated exponential process using finite differences.

@@ -20,7 +20,7 @@ class RejectionSampler:
     self.proposal_pdf = proposal_pdf
     self.c = c
 
-  def sample(self,n_sample):
+  def sample(self,n_samples):
     """
     Generates samples from target distribution. 
 
@@ -34,14 +34,14 @@ class RejectionSampler:
     """
 
     samples = []
-    while len(sampes) < n_samples:
+    while len(samples) < n_samples:
       # Generate samples from the proposal distribution
       x = self.proposal_sampler()
       # Calculate probability of accepting
       u = np.random.uniform(0,self.c * self.proposal_pdf(x))
       # accept or reject
       if u <= self.target_pdf(x):
-        sample.append(x)
+        samples.append(x)
     return samples
 
     

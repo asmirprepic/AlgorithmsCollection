@@ -1,3 +1,5 @@
+import numpy as np
+
 def importance_sampling_rare_events(n_samples: int, n_variables: int, threshold: float, mu: float = 0, sigma: float = 0, shift: float = 3) -> float: 
 
   """
@@ -14,7 +16,7 @@ def importance_sampling_rare_events(n_samples: int, n_variables: int, threshold:
   Returns: 
   float: Estimated probability of rare event 
   """
-  mu_shift = mu + shift
+  mu_shifted = mu + shift
   likelihood_ratio = np.zeros(n_samples)
 
   for i in range(n_samples): 
@@ -23,7 +25,7 @@ def importance_sampling_rare_events(n_samples: int, n_variables: int, threshold:
 
     original_density = np.exp(-((samples-mu)**2)/(2*sigma**2)).prod()
     shifted_density = np.exp(-((samples-mu_shifted)**2)/(2*sigma**2)).prod()
-    likelihood_ratio = original_density/shifted_density
+    likelihood_ratios = original_density/shifted_density
 
     if sum_samples > threshold: 
       likelihood_ratios[i] = likelihood_ratio

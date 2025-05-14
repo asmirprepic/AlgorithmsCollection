@@ -1,6 +1,6 @@
 import numpy as np
 
-def abc_metropolis_hastings(simulate_data,observed_data, prior_sampler,proposal_sampler,distance_metric, tolerance, init,num_samples: int) -> np.ndarray:
+def abc_metropolis_hastings(simulated_data,observed_data, prior_sampler,proposal_sampler,distance_metric, tolerance, init,num_samples: int) -> np.ndarray:
   """
   ABC for parameter estimation when the likelihood is not known 
 
@@ -34,4 +34,4 @@ def abc_metropolis_hastings(simulate_data,observed_data, prior_sampler,proposal_
     else: 
       samples[t] = current_sample
 
-return samples
+  return samples

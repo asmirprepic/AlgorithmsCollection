@@ -12,11 +12,8 @@ class BVAR:
     self.X,self.Y = self.build_lagged_matrix(Y,lags)
     self.KX = self.X.shape[1]
 
-  def _build_lagged_matrices(
-    self,
-    Y: NDArray[np.float64], 
-    lags:int ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-      "Construct lagged regressor matrix X and target matrix Y"
+  def _build_lagged_matrices(self,Y: NDArray[np.float64], lags:int ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    "Construct lagged regressor matrix X and target matrix Y"
     X = [
       np.hstack(Y[t-l] for l in range(1,lags +1))
       for t in range(lags,len(Y))
@@ -34,7 +31,7 @@ class BVAR:
     nu0 = self.K +2 
     S0 = np.eye(self.K)
 
-    A.samples: List[NDArray[np.float64]] = []
+    A_samples: List[NDArray[np.float64]] = []
     Sigma_samples: List[NDArray[np.float64]] = []
 
     # Initial values
@@ -62,7 +59,7 @@ class BVAR:
         A_samples.append(A.copy())
         Sigma_samples.append(Sigma.copy())
 
-  self.A_samples = np.array(A_samples)
-  self.Sigma_samples = np.array(Sigma_samples)
+    self.A_samples = np.array(A_samples)
+    self.Sigma_samples = np.array(Sigma_samples)
 
       

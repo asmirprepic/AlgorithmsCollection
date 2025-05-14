@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def real_options_binomial_tree(S: float,K: float, r: float, N: int, option_type: str = 'call',descision_type: str = 'extend') -> float: 
+def real_options_binomial_tree(S: float,K: float, r: float, N: int,T:int,sigma:float, option_type: str = 'call',descision_type: str = 'extend') -> float: 
   """
   Real option valuation using a binomial tree
 
@@ -22,8 +22,8 @@ def real_options_binomial_tree(S: float,K: float, r: float, N: int, option_type:
   d = 1/u
   p = (np.exp(r*dt)-d)/(u-d)
 
-  asset_price = np.zeros((N+1),(N+1))
-  asset_price[0,0] = S
+  asset_prices = np.zeros((N+1),(N+1))
+  asset_prices[0,0] = S
 
   for i in range(1,N+1):
     for j in range(1,N+1):

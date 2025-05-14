@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 def simulate_diffusion(T,dt,kind = 'gbm',**kwargs):
 
   t_grid = np.arange(0, T+dt, dt)  
-  N = len(grid)
+  N = len(t_grid)
   X = np.zeros(N)
 
   if kind == 'gbm':
@@ -32,7 +32,7 @@ def simulate_diffusion(T,dt,kind = 'gbm',**kwargs):
 
   A = np.cumsum(X)*dt
 
-return t_grid, X, A
+  return t_grid, X, A
 
 def simulate_poisson_in_random_time(A,rate):
   T_star = A[-1]
