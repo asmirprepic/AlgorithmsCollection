@@ -15,7 +15,7 @@ def almgren_chriss(T:float,X:float,N:int,sigma:float,eta:float,gamma:float,alpha
   dt = T/N
   kappa = np.sqrt(gamma*sigma**2/eta)
   t = np.linspace(0,T,N)
-  X_t = X*(np.cosh(kappa*(T-t))/np.cosh(kappa*T)
+  X_t = X*(np.cosh(kappa*(T-t))/np.cosh(kappa*T))
 
   execution_cost = np.sum(alpha*X_t[:-1]**2*dr)
   risk_cost = 0.5*gamma*np.sum((X_t[:-1]-X_t[1:])**2)
