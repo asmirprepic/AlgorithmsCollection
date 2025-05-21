@@ -18,6 +18,7 @@ u = np.sin(x)
 u_prev = u.copy()
 u_next = np.zeros(nx)
 
+
 # Time-stepping loop
 for n in range(nt):
     for i in range(1, nx - 1):
