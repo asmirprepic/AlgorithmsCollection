@@ -1,3 +1,5 @@
+import numpy as np
+
 def multivariate_gaussian_pdf(x, mean, cov):
     """
     Computes the Probability Density Function of a multivariate Gaussian distribution.
