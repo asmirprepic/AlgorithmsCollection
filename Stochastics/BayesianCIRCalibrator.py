@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy.stats import norm
 
 class BayesianCIRCalibrator:
     def __init__(self, observed_data, dt, prior_mu, prior_sigma, likelihood_sigma):

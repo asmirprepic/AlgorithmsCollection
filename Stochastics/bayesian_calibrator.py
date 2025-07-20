@@ -71,7 +71,7 @@ calibrator = BayesianCalibrator(
     prior_mu=[0.0,0.0],
     prior_sigma=[5.0,5.0]
     likelihood_sigma=noise_sigma
-)
+    )
 
 samples,acc_rate = calibrator.metropolis_hastings(initial_params=[1.0,1.0],n_samples = 5000,proposal_width=0.1)
 fig, axs = plt.subplots(1, 2, figsize=(12, 4))
