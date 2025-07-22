@@ -69,7 +69,7 @@ def linear_model(params):
 calibrator = BayesianCalibrator(
     model_func=linear_model,
     prior_mu=[0.0,0.0],
-    prior_sigma=[5.0,5.0]
+    prior_sigma=[5.0,5.0],
     likelihood_sigma=noise_sigma
     )
 
