@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
 class ABMSimulator:
     def __init__(self, N=100, beta=0.1, gamma=0.05, contacts_per_day=10, initial_infected=1, max_days=100, seed=None):
         if seed is not None:
