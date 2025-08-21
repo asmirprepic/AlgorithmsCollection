@@ -77,6 +77,14 @@ def kupiec_test(breaches: np.ndarray, p: float) -> Dict[str, float]:
     LR_uc = -2.0 * (ll_h0 - ll_hat)
     return {"LR_uc": LR_uc, "p_value": 1 - chi2.cdf(LR_uc, df=1), "breaches": b, "expected": alpha * n}
 
+def mean_residual_life(losses, qs=np.linspace(0.80, 0.99, 40)):
+    u = np.quantile(losses, qs)
+    mrl = []
+    for ui in u:
+        exc = losses[losses > ui] - ui
+        mrl.append(exc.mean() if exc.size > 0 else np.nan)
+    return u, np.array(mrl)
+
 
 class RollingGPDRiskMonitor:
     """
