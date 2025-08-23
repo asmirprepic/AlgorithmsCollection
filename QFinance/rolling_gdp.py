@@ -3,6 +3,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict
 from scipy.stats import genpareto, chi2
+from scipy.optimize import minimize
 
 
 @dataclass
@@ -85,6 +86,20 @@ def mean_residual_life(losses, qs=np.linspace(0.80, 0.99, 40)):
         mrl.append(exc.mean() if exc.size > 0 else np.nan)
     return u, np.array(mrl)
 
+def fit_gpd_regression(excess, Z):
+    # excess: (n,), Z: (n,k) covariates (e.g., scaled RV)
+    def nll(theta):
+        xi = theta[0]
+        logbeta = Z @ theta[1:]
+        beta = np.exp(logbeta)
+        y = excess / beta
+        if np.any(1 + xi * y <= 0):
+            return np.inf
+        n = excess.size
+        return n * np.log(beta).mean() + (1 + 1/xi) * np.log1p(xi * y).sum()
+    k = Z.shape[1]; theta0 = np.r_[0.1, np.zeros(k)]
+    res = minimize(nll, theta0, method="L-BFGS-B", bounds=[(-0.45, 0.95)] + [(-5,5)]*k)
+    return res.x, res.success
 
 class RollingGPDRiskMonitor:
     """
