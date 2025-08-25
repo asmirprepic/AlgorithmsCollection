@@ -38,7 +38,7 @@ def simulate_multiple_paths(num_paths, num_steps, delta_t, specific_t):
         all_x.append(x)
         all_y.append(y)
 
-    # Calculate the expected position at the specific time
+    
     specific_step = int(specific_t / delta_t)
     avg_x = np.mean([path[specific_step] for path in all_x])
     avg_y = np.mean([path[specific_step] for path in all_y])
@@ -54,7 +54,7 @@ specific_t = 1       # Time at which to calculate the expected position
 # Simulate and calculate the expected position
 avg_x, avg_y, all_x, all_y = simulate_multiple_paths(num_paths, num_steps, delta_t, specific_t)
 
-# Plotting
+
 plt.figure(figsize=(10, 10))
 for i in range(num_paths):
     plt.plot(all_x[i], all_y[i], '-o', markersize=2, alpha=0.1)
