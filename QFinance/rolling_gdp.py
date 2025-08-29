@@ -153,3 +153,36 @@ class RollingGPDRiskMonitor:
         })
         df["breach"] = (df["loss"] > df["VaR"]).astype(float)
         return df
+
+    @staticmethod
+    def backtests(df: pd.DataFrame, p: float) -> Dict[str, float]:
+        """
+        Run Kupiec (coverage) and Christoffersen (independence) tests on OOS breaches.
+        NaNs in VaR rows are ignored.
+        """
+        mask = np.isfinite(df["VaR"].values)
+        breaches = df.loc[mask, "breach"].values
+        k = kupiec_test(breaches, p)
+        c = christoffersen_independence_test(breaches)
+        # Combined conditional coverage:
+        if np.isfinite(k.get("LR_uc", np.nan)) and np.isfinite(c.get("LR_ind", np.nan)):
+            LR_cc = k["LR_uc"] + c["LR_ind"]
+            p_cc = 1 - chi2.cdf(LR_cc, df=2)
+        else:
+            LR_cc, p_cc = np.nan, np.nan
+        out = {
+            "breaches": k["breaches"],
+            "expected_breaches": k["expected"],
+            "kupiec_LR": k["LR_uc"],
+            "kupiec_p": k["p_value"],
+            "christoffersen_LR": c["LR_ind"],
+            "christoffersen_p": c["p_value"],
+            "conditional_coverage_LR": LR_cc,
+            "conditional_coverage_p": p_cc
+        }
+        return out
+
+    def tail_pit_test(excess, xi, beta):
+        U = (1 + xi * (excess / beta))**(-1/xi) if abs(xi) >= 1e-6 else np.exp(-(excess / beta))
+        stat, pval = kstest(U, 'uniform')
+        return {"KS_stat": stat, "p_value": pval}
