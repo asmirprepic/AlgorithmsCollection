@@ -186,3 +186,34 @@ class RollingGPDRiskMonitor:
         U = (1 + xi * (excess / beta))**(-1/xi) if abs(xi) >= 1e-6 else np.exp(-(excess / beta))
         stat, pval = kstest(U, 'uniform')
         return {"KS_stat": stat, "p_value": pval}
+
+    def stationary_bootstrap(x, p=0.1, size=None, rng=None):
+        rng = np.random.default_rng(rng)
+        n = len(x); size = size or n
+        idx = np.empty(size, dtype=int); i = 0
+        while i < size:
+            start = rng.integers(0, n); L = 1 + rng.geometric(p)
+            L = min(L, size - i)
+            idx[i:i+L] = (start + np.arange(L)) % n
+            i += L
+        return x[idx]
+
+    def runs_declustering(losses, u, r=5):
+        exc_idx = np.where(losses > u)[0]
+        clusters, cur = [], [exc_idx[0]] if exc_idx.size else []
+        for i in range(1, exc_idx.size):
+            if exc_idx[i] - exc_idx[i-1] <= r:
+                cur.append(exc_idx[i])
+            else:
+                clusters.append(cur); cur = [exc_idx[i]]
+        if cur: clusters.append(cur)
+        repr_idx = [c[np.argmax(losses[c])] for c in clusters]  # peak per cluster
+        theta = len(clusters) / max(exc_idx.size, 1)
+        return np.array(repr_idx), theta
+    def mean_residual_life(losses, qs=np.linspace(0.80, 0.99, 40)):
+        u = np.quantile(losses, qs)
+        mrl = []
+        for ui in u:
+            exc = losses[losses > ui] - ui
+            mrl.append(exc.mean() if exc.size > 0 else np.nan)
+        return u, np.array(mrl)
