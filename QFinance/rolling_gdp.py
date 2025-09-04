@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Dict
 from scipy.stats import genpareto, chi2
 from scipy.optimize import minimize
+from scipy.stats import genpareto
 
 
 @dataclass
@@ -217,3 +218,23 @@ class RollingGPDRiskMonitor:
             exc = losses[losses > ui] - ui
             mrl.append(exc.mean() if exc.size > 0 else np.nan)
         return u, np.array(mrl)
+
+    def choose_threshold_by_stability(losses, qs=np.linspace(0.85, 0.98, 27), min_ex=50):
+
+        out = []
+        for q in qs:
+            u = np.quantile(losses, q)
+            exc = losses[losses > u] - u
+            if exc.size < min_ex:
+                out.append((np.nan, np.nan, q, np.nan))
+                continue
+            xi, loc, beta = genpareto.fit(exc, floc=0.)
+            out.append((xi, beta, q, exc.size))
+        df = pd.DataFrame(out, columns=["xi","beta","q","n"])
+        # choose q in region where xi,beta vary least (min local variance)
+        k = 5
+        df["xi_var"] = df["xi"].rolling(k, min_periods=k).std()
+        df["beta_var"] = df["beta"].rolling(k, min_periods=k).std()
+        cand = df.dropna(subset=["xi_var","beta_var"]).copy()
+        q_star = cand.loc[(cand["xi_var"] + cand["beta_var"]).idxmin(), "q"] if not cand.empty else qs[-1]
+        return float(q_star), df
