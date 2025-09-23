@@ -7,10 +7,10 @@ class OnlineRareEventBeta:
     """
     def __init__(self, a0=1.0, b0=1.0, discount=1.0):
         self.a = float(a0); self.b = float(b0)
-        self.gamma = float(discount)  # e.g., 0.99 for slow forgetting
+        self.gamma = float(discount)
 
     def update(self, event: int):
-        # Discount (forget) old evidence, then add new observation
+
         self.a = self.gamma * self.a + int(event)
         self.b = self.gamma * self.b + (1 - int(event))
 
