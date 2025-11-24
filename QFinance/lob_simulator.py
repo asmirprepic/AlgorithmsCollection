@@ -179,3 +179,43 @@ class PoissonOrderFlowSimulator:
         if snap.best_bid and snap.best_ask:
             return 0.5 * (snap.best_bid.price + snap.best_ask.price)
         return self.config.mid_price
+
+    def _sample_limit_price(self, side: Side) -> float:
+        mid = self._current_mid()
+        ticks_offset = self._rng.integers(1, self.config.max_depth_ticks + 1)
+        offset = ticks_offset * self.config.tick_size
+
+        if side is Side.BUY:
+            raw_price = mid - offset
+        else:
+            raw_price = mid + offset
+
+        # Round to tick grid and ensure positive
+        price = max(self.config.tick_size, math.floor(raw_price / self.config.tick_size) * self.config.tick_size)
+        return float(price)
+
+    def _random_resting_order_id(self) -> Optional[int]:
+        """
+        Uniformly sample an existing resting order to cancel, if any
+        """
+        if not self.book._order_index:
+            return None
+        return int(self._rng.choice(list(self.book_order_index.keys())))
+
+    def step(self) -> SimulationEvent:
+        """
+        Advance the simulation by one event
+
+        Returns:
+        ----------
+        event: SimulationEvent
+        """
+        dt = self._sample_interarrival()
+        self._time += dt
+
+        etype = self.sample_event_type()
+        side: Optional[Side]  = None
+        trades: List[Trade] = []
+        order_id: Optional[int] = None
+
+        if etype == "limit"
