@@ -218,4 +218,39 @@ class PoissonOrderFlowSimulator:
         trades: List[Trade] = []
         order_id: Optional[int] = None
 
-        if etype == "limit"
+        if etype == "limit":
+            side = self._sample_side()
+            price = self._sample_limit_price(side)
+            qty = self._sample_size()
+            order, trades = self.book.submit_order(
+                side=side,
+                order_type=OrderType.LIMIT,
+                quantity=qty,
+                price=price,
+                timestamp=self._time,
+            )
+            order_id = order.order_id
+        elif etype == "market":
+            side = self._sample_side()
+            qty = self._sample_size()
+            order, trades = self.book.submit_order(
+                side=side,
+                order_type=OrderType.MARKET,
+                quantity=qty,
+                timestamp=self._time,
+            )
+            order_id = order.order_id
+        else:  # cancel
+            order_id = self._random_resting_order_id()
+            side = None
+            if order_id is not None:
+                self.book.cancel_order(order_id)
+
+        return SimulationEvent(
+            time=self._time,
+            event_type=etype,
+            side=side,
+            order_id=order_id,
+            trades=trades,
+        )
+
