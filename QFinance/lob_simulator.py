@@ -254,3 +254,13 @@ class PoissonOrderFlowSimulator:
             trades=trades,
         )
 
+    def run(self, n_events: int) -> Iterable[SimulationEvent]:
+        """
+        Run the simulator for a fixed number of events.
+
+        Yields
+        ------
+        event : SimulationEvent
+        """
+        for _ in range(n_events):
+            yield self.step()
