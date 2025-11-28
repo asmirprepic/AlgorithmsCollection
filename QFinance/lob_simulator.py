@@ -123,6 +123,80 @@ class BookSnapshot:
     best_bid: Optional[BookLevel]
     best_ask: Optional[BookLevel]
 
+class OrderBook:
+    """
+    Price-time priority limit order book with basic matching logic.
+
+
+    Supports:
+     - Limit and market orders
+     - Partial fills
+     - FIFO at each price level
+     - Cancellation by order-id
+    """
+
+    def __init__(self)  -> None:
+        self._bids = Dict[float, Deque[Order]] = {}
+        self._asks = Dict[float, Deque[Order]] = {}
+
+        self._bid_heap: List[float] = []
+        self._ask_heap: List[float] = []
+
+        #Order lookup for fast cancel
+        self._order_index: Dict[int, Tuple[Side, float]] = {}
+
+        self._order_id_gen = itertools.count(1)
+        self._trade_id_gen = itertools.count(1)
+
+
+    def next_order_id(self) -> int:
+        return next(self._order_id_gen)
+
+    def next_trade_id(self) -> int:
+        return next(self._trade_id_gen)
+
+    def submit_order(
+        self,
+        side: Side,
+        order_type: OrderType,
+        quantity: float,
+        price: Optional[float] = None,
+        timestamp: Optional[float] = None,
+        owner_id: Optional[str] = None,
+    ) -> Tuple[Order, List[Trade]]:
+
+        """
+        Submit a new order and perform matching if possible
+
+        Returns
+        --------
+        order: Order
+            The order object
+        trades: List[Trades]
+            List of trades executed
+        """
+
+        ts = time.time() if timestamp is None else timestamp
+        order_id = self.next_order_id()
+        order = Order(
+            order_id = order_id,
+            side = side,
+            type = order_type,
+            price = price,
+            quantity = quantity,
+            timestamp = ts,
+            owner_id = owner_id
+        )
+
+        trades: List[Trade] = []
+        if order.type is OrderType.Market:
+            trades = self._execute_market_order(order)
+        else:
+            trades = self._execute_limit_order(order)
+
+    def cancel_order(self, order_id: int) -> bool:
+
+
 class PoissonOrderFlowSimulator:
     """
         Simple Poisson order-flow simulator driving an OrderBook.
