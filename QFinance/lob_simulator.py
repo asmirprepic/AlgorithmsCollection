@@ -194,7 +194,99 @@ class OrderBook:
         else:
             trades = self._execute_limit_order(order)
 
+        return order,trades
+
     def cancel_order(self, order_id: int) -> bool:
+        """
+        Cancel an existing order by id.
+
+        Returns:
+        ------------
+        success: bool
+            True if the order is cancelled
+
+        """
+
+        info = self._order_index.get(order_id)
+        if info is None:
+            return False
+
+        side, price = info
+        book_side = self._bids if side is Side.BUY else self._asks
+
+        queue = book_side.get(price)
+        if queue is None:
+            # Should not really happen
+            self._order_index.pop(order_id, None)
+            return False
+
+        # Scan
+        found = False
+        new_queue = Deque[Order] = deque()
+        while queue:
+            o = queue.popleft()
+            if order_id == order_id and not found:
+                found = True
+
+                # Do not insert the order
+                self._order_index.pop(order_id,None)
+            else: new_queue.append(o)
+
+        if found:
+            if new_queue:
+                book_side[price] = new_queue
+            else:
+                del book_side[price]
+            return True
+        else:
+            # Not found restore queues
+            book_side[price] = new_queue
+            self._order_index.pop(order_id,None)
+            return False
+
+    def best_bid(self ) -> Optional[BookLevel]:
+        price = self._best_bid_price()
+        if price is None:
+            return None
+        queue = self._bids[price]
+        qty = sum(o.quantity for o in queue)
+        return BookLevel(price = price, quantity=qty, order_count = len(queue))
+
+    def best_ask(self) -> Optional[BookLevel]:
+        price = self._best_ask_price()
+        if price is None:
+            return None
+        queue = self._asks[price]
+        qty = sum(o.quantity for o in queue)
+        return BookLevel(price=price, quantity=qty, order_count=len(queue))
+
+    def snapshot(self) -> BookSnapshot:
+        """
+        Return a top  of the book snapshot
+        """
+        ts = time.time()
+        return BookSnapshot(timestamp=ts, best_bid = self.best_bid(), best_ask = self.best_ask())
+
+    def depth(
+        self,
+        levels: int = 5,
+    ) -> Tuple[List[BookLevel], List[BookLevel]]:
+        """
+        Return book depth for both sides.
+
+        Parameters
+        ----------
+        levels : int
+            Maximum number of levels per side.
+
+        Returns
+        -------
+        bids : list[BookLevel]
+        asks : list[BookLevel]
+        """
+        bids = self._sorted_levels(self._bids, descending=True, max_levels=levels)
+        asks = self._sorted_levels(self._asks, descending=False, max_levels=levels)
+        return bids, asks
 
 
 class PoissonOrderFlowSimulator:
