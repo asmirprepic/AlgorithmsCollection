@@ -288,6 +288,37 @@ class OrderBook:
         asks = self._sorted_levels(self._asks, descending=False, max_levels=levels)
         return bids, asks
 
+    def _sorted_levels(
+        self, book_side: Dict[float, Deque[Order]],
+        *,
+        descending: bool,
+        max_levels: int
+
+    ) -> List[BookLevel]:
+        prices = sorted(book_side.keys(), reverse=descending)
+        levels = List[BookLevel] = []
+        for p in prices[:max_levels]:
+            q = book_side[p]
+            qty = sum(o.quantity for o in q)
+            levels.append(BookLevel(price=p, quantity=qty,order_count= len(q)))
+
+        return levels
+
+    def _best_bid_price(self) -> Optional[float]:
+        while self._bid_heap:
+            p = -self._bid_heap[0]
+            if p in self._bids and self._bids[p]:
+                return p
+            heapq.heappop(self._bid_heap)
+        return None
+
+    def _best_ask_price(self) -> Optional[float]:
+        while self._ask_heap:
+            p = self._ask_heap[0]
+            if p in self._asks and self._asks[p]:
+                return p
+            heapq.heappop(self._ask_heap)
+        return None
 
 class PoissonOrderFlowSimulator:
     """
