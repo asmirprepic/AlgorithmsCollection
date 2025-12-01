@@ -320,6 +320,20 @@ class OrderBook:
             heapq.heappop(self._ask_heap)
         return None
 
+    def _insert_limit_order(self, order: Order) -> None:
+        """
+        Insert a new resting limit order without matching
+        """
+        book_side = self._bids if order.side is Side.BUY else self._asks
+        heap = self._bid_heap if order.side is Side.BUY else self._ask_heap
+        price = float(order.price)
+        if price not in book_side:
+            book_side[price] = deque()
+            heapq.heappush(heap, -price if order.side is Side.BUY else price)
+        book_side[price].append(order)
+        self._order_index[order.order_id] = (order.side,price)
+
+
 class PoissonOrderFlowSimulator:
     """
         Simple Poisson order-flow simulator driving an OrderBook.
