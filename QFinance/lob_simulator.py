@@ -334,6 +334,113 @@ class OrderBook:
         self._order_index[order.order_id] = (order.side,price)
 
 
+    def _execute_limit_order(self, order: Order) -> List[Trade]:
+        """
+        Execute a newly arrived limit order against the oppsite side,
+        inserting any remaining quantity into the book
+        """
+
+        trades = List[Trade] = []
+        if order.side == Side.BUY:
+            trades = self._match_buy(order)
+        else:
+            trades = self._match_sell(order)
+
+        if order.quantity > 1e-12:
+            self._insert_limit_order(order)
+
+    def _execute_market_order(self, order: Order) -> List[Trade]:
+        """
+        Execute a market order against the opposite side.
+        Market orders never rest in the book, unfilled quantities are dropped
+        """
+        trades: List[Trade] = []
+        if order.side == Side.BUY:
+            trades = self._match_buy(order, is_market = True)
+        else:
+            trades = self._match_sell(order,is_market = True)
+        return trades
+
+    def _match_buy(self, order: Order, is_market: bool = False) -> List[Trade]:
+        trades: List[Trade] = []
+
+        while order.quantity > 1e-12:
+            best_ask = self._best_ask_price()
+            if best_ask is None:
+                break
+            if (not is_market) and best_ask > float(order.price):
+                break
+
+            ask_queue = self._asks[best_ask]
+            while  ask_queue and order.quantity > 1e-12:
+                resting = ask_queue[0]
+                trade_qty = min(order.quantity, resting.quantity)
+                trade_price = best_ask
+                ts = max(order.timestamp,resting.timestamp)
+                trade = Trade(
+                    trade_id = self.next_trade_id()
+                    price = trade_price,
+                    quantity=trade_qty,
+                    timestamp = ts,
+                    buy_order_id=order.order_id,
+                    sell_order_id=resting.order_id
+                )
+                trades.append(trade)
+
+                order.quantity -= trade_qty
+                resting.quantity -= trade_qty
+
+                if resting.quantity <= 1e-12:
+                    ask_queue.popleft()
+                    self._order_id_index.pop(resting.order_id, None)
+                else:
+                    break
+            if not ask_queue:
+                del self._asks[best_ask]
+        return trades
+
+    def _match_sell(self, order: Order, is_market: bool = False) -> List[Trade]:
+        trades: List[Trade] = []
+
+        while order.quantity > 1e-12:
+            best_bid = self._best_bid_price()
+            if best_bid is None:
+                break
+
+            if (not is_market) and best_bid < float(order.price):
+                # No crossing
+                break
+
+            bid_queue = self._bids[best_bid]
+            while bid_queue and order.quantity > 1e-12:
+                resting = bid_queue[0]
+                trade_qty = min(order.quantity, resting.quantity)
+                trade_price = best_bid
+                ts = max(order.timestamp, resting.timestamp)
+                trade = Trade(
+                    trade_id=self.next_trade_id(),
+                    price=trade_price,
+                    quantity=trade_qty,
+                    timestamp=ts,
+                    buy_order_id=resting.order_id,
+                    sell_order_id=order.order_id,
+                )
+                trades.append(trade)
+
+                order.quantity -= trade_qty
+                resting.quantity -= trade_qty
+
+                if resting.quantity <= 1e-12:
+                    bid_queue.popleft()
+                    self._order_index.pop(resting.order_id, None)
+                else:
+                    break
+
+            if not bid_queue:
+                del self._bids[best_bid]
+
+        return trades
+
 class PoissonOrderFlowSimulator:
     """
         Simple Poisson order-flow simulator driving an OrderBook.
