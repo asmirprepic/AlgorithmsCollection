@@ -498,7 +498,7 @@ class SimulationEvent:
     time: float
     event_type: str
     side: Optional[int]
-    trades: List[Trade] = field(default_factory=list)
+    trades: List[Trade] = field(default_factory=list )
 
 
 class PoissonOrderFlowSimulator:
