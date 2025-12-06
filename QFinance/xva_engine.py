@@ -17,3 +17,104 @@ class DiscountCurve(Protocol):
 
     def discount_factor(self, t: float) -> float:
         ...
+
+@dataclass
+class FlatDiscountCurve:
+    """
+    Simple flat continously-compound discount curve:
+        P(0,t) = exp(-r * t )
+
+    Parameters:
+    -----------
+    rate: float
+        Cosntant risk-free short rate r
+
+    """
+
+    rate: float
+
+    def discount_factor(self, t, float) -> float:
+        if t < 0.0:
+            raise ValueError("Time t must be non-negative")
+
+        return float(np.exp(-self.rate*t)
+                )
+
+class HazardCurve(Protocol):
+    """
+    Interface for default intensity / survival probability.
+    """
+
+    def intensity(self, t: float) -> float:
+        """
+        Instantaneous default intensity λ(t).
+        """
+        ...
+
+    def survival_prob(self, t: float) -> float:
+        """
+        Survival probability S(0,t) = P(τ > t).
+        """
+        ...
+
+class Trade(abc.ABC):
+    """
+    Abstract base class.
+
+    A trade knows how to compute its risk neutral mark to market
+    given simulated underlying paths
+
+    """
+
+    @abc.abstractmethod
+    def exposure_paths(
+        self,
+        time_grid: np.ndarray,
+        underlying_paths: np.ndarray,
+        discount_curve: DiscountCurve
+    ) -> np.ndarray:
+        """
+        Compute discounted mark-to-market of this trade along paths.
+
+        Parameters:
+        -------------
+        time_grid: np.ndarray, shape (T+1, )
+            Monotone increasing times, starting at 0.
+        underlying_paths: np.ndarray, shape (N, T+1)
+            Simulated underlying price paths. Underlying paths [i, j]
+            is the underlying price of path i at time t_j
+        discount_curve: DiscountCurve
+            Discount curve for PV calculation
+
+        Returns:
+        --------------
+        exposures: np.ndarray, shape (N, T+1)
+            Discounted mark-to-market per path and time,
+            from the perspective of party long the trade
+
+        """
+
+        raise NotImplementedError
+
+
+@dataclass(slots=True)
+class Counterparty:
+    """
+    Representation of a counterparty for XVA purposes.
+
+    Parameters
+    ----------
+    name : str
+        Identifier.
+    hazard_curve : HazardCurve
+        Default intensity and survival probability.
+    lgd : float
+        Loss-given-default in [0,1].
+    funding_spread : float
+        Constant funding spread (annualized) over risk-free, used for FVA.
+    """
+
+    name: str
+    hazard_curve: HazardCurve
+    lgd: float
+    funding_spread: float
