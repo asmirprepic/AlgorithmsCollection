@@ -96,6 +96,33 @@ class Trade(abc.ABC):
 
         raise NotImplementedError
 
+@dataclass(slots = True)
+class NettingSet:
+    """
+    Collection of trades subject to netting under CSA.
+
+    """
+
+    trades: List[Trade] = field(default_factory=list)
+
+    def add_trade(self, trade: Trade) -> None:
+        self.trades.append(trade)
+
+    def exposure_paths(
+        self,
+        time_grid: np.ndarray,
+        underlying_paths: np.ndarray,
+        discount_curve: DiscountCurve
+    ) -> np.ndarray:
+
+        if not self.trades:
+            raise ValueError("Net setting does not contain trades")
+
+        total = np.zeros_like(underlying_paths, dtype = float)
+        for trade in self.trades:
+            total += trade.exposure_paths(time_grid, underlying_paths, discount_curve)
+        return total
+
 
 @dataclass(slots=True)
 class Counterparty:
