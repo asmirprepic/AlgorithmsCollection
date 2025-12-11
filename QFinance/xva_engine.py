@@ -257,3 +257,162 @@ class XVAResults:
         Time grid corresponding to EPE/ENE.
 
     """
+@dataclass(slots=True)
+class XVAEngine:
+    """
+    Mini XVA engine for a single netting set vs a counterparty.
+
+    Workflow:
+    ---------
+    1. Simulate underlying price paths under the risk-neutral measure.
+    2. Compute discounted exposure paths of the netting set.
+    3. Compute EPE/ENE over time.
+    4. Integrate against default probability and discount factors to
+       obtain CVA/DVA.
+    5. Integrate EPE against funding spread to obtain FVA (simple spec).
+
+    This engine is intentionally transparent and modular, not fully
+    production-optimized.
+    """
+
+    discount_curve: DiscountCurve
+    netting_set: NettingSet
+    counterparty: Counterparty
+    own_hazard_curve: HazardCurve
+
+    def simulate_underlying_paths(
+        self,
+        spot0: float,
+        time_grid: np.ndarray,
+        vol: float,
+        drift: Optional[float] = None,
+        n_paths: int = 10000,
+        seed: Optional[int] = None,
+    ) -> np.ndarray:
+        """
+        Simulate GBM paths for the underlying under risk-neutral measure.
+
+        dS_t = μ S_t dt + σ S_t dW_t
+
+        Typically μ = r (risk-free rate). If drift is None, we use
+        discount_curve.rate for FlatDiscountCurve; otherwise drift must
+        be provided.
+        """
+        if time_grid.ndim != 1:
+            raise ValueError("time_grid must be 1D.")
+        if time_grid[0] != 0.0:
+            raise ValueError("time_grid must start at 0.")
+
+        n_steps = time_grid.shape[0] - 1
+        paths = np.empty((n_paths, n_steps + 1), dtype=float)
+        paths[:, 0] = spot0
+
+        rng = np.random.default_rng(seed)
+
+        # Determine drift
+        if drift is None:
+            if isinstance(self.discount_curve, FlatDiscountCurve):
+                mu = self.discount_curve.rate
+            else:
+                raise ValueError("drift must be provided for non-flat discount curve.")
+        else:
+            mu = drift
+
+        for i in range(n_steps):
+            t0 = time_grid[i]
+            t1 = time_grid[i + 1]
+            dt = float(t1 - t0)
+            if dt <= 0.0:
+                raise ValueError("time_grid must be strictly increasing.")
+
+            z = rng.standard_normal(n_paths)
+            # GBM exact discretization
+            paths[:, i + 1] = paths[:, i] * np.exp(
+                (mu - 0.5 * vol * vol) * dt + vol * np.sqrt(dt) * z
+            )
+
+        return paths
+
+    def _expected_exposure_profiles(
+        self,
+        time_grid: np.ndarray,
+        underlying_paths: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Compute exposure paths and EPE/ENE.
+
+        Returns
+        -------
+        exposures : np.ndarray, shape (N, T+1)
+        epe : np.ndarray, shape (T+1,)
+            Expected positive exposure E[max(V_t,0)].
+        ene : np.ndarray, shape (T+1,)
+            Expected negative exposure E[min(V_t,0)].
+        """
+        exposures = self.netting_set.exposure_paths(
+            time_grid=time_grid,
+            underlying_paths=underlying_paths,
+            discount_curve=self.discount_curve,
+        )
+        epe = np.mean(np.maximum(exposures, 0.0), axis=0)
+        ene = np.mean(np.minimum(exposures, 0.0), axis=0)
+        return exposures, epe, ene
+
+    def _cva_from_epe(self, time_grid: np.ndarray, epe: np.ndarray) -> float:
+        """
+        Compute CVA via Riemann sum approximation:
+
+        CVA ≈ LGD * Σ_t EPE(t_mid) * [DF(t_mid)] * [S(0,t_{i}) - S(0,t_{i+1})]
+        where default occurs between t_i and t_{i+1}.
+        """
+        lgd = self.counterparty.lgd
+        hz = self.counterparty.hazard_curve
+        dc = self.discount_curve
+
+        if time_grid.shape[0] != epe.shape[0]:
+            raise ValueError("time_grid and epe must have same length.")
+
+        cva = 0.0
+        for i in range(len(time_grid) - 1):
+            t0 = float(time_grid[i])
+            t1 = float(time_grid[i + 1])
+            t_mid = 0.5 * (t0 + t1)
+
+            s0 = hz.survival_prob(t0)
+            s1 = hz.survival_prob(t1)
+            default_prob = s0 - s1  # P(t0 < τ <= t1)
+
+            df = dc.discount_factor(t_mid)
+            exposure = max(epe[i], 0.0)
+
+            cva += lgd * exposure * df * default_prob
+
+        return float(cva)
+
+    def _dva_from_ene(self, time_grid: np.ndarray, ene: np.ndarray) -> float:
+        """
+        DVA computed symetrically using own default hazard curve and
+        expected negative exposure
+        """
+        hz = self.own_hazard_curve
+        dc = self.discount_curve
+        lgd_own = 1.0
+
+        if time_grid.shape[0] != ene.shape[0]:
+            raise ValueError("time_grid and ene must have same length")
+
+        dva = 0.0
+        for i in range(len(time_grid) - 1):
+            t0 = float(time_grid[i])
+            t1 = float(time_grid[i + 1])
+            t_mid = 0.5 *(t0 + t1)
+
+            s0 = hz.survival_prob(t0)
+            s1 = hz.survival_prob(t1)
+            default_prob = s0 - s1
+            df = dc.discount_factor(t_mid)
+
+            exposure = min(ene[i], 0.0)
+
+            dva += lgd_own * exposure * df * default_prob
+        return float(dva)
