@@ -416,3 +416,28 @@ class XVAEngine:
 
             dva += lgd_own * exposure * df * default_prob
         return float(dva)
+
+    def _fva_from_epe(self, time_grid: np.ndarray, epe: np.ndarray) -> float:
+        """
+        Simple FVA approximation:
+
+        FVA = - Int from 0 to t funding_spread*DF(t)*EPE(t)*dt
+
+        """
+
+        spread = self.counterparty.funding_spread
+        dc = self.discount_curve
+
+        if time_grid.shape[0] != epe.shape[0]:
+            raise ValueError("time_grid and epe must have same length")
+
+        fva = 0.0
+        for i in range(len(time_grid) -1 ):
+            t0 = float(time_grid[i])
+            t1 = float(time_grid[i + 1])
+            dt = t1-t0
+            t_mid = 0.5 * (t0 + t1)
+            df = dc.discount_factor(t_mid)
+            exposure_mid= 0.5*(epe[i] + epe[i+1])
+            fva += -spread *df *exposure_mid*dt
+        return float
