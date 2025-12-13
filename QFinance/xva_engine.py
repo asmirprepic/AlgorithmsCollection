@@ -441,3 +441,35 @@ class XVAEngine:
             exposure_mid= 0.5*(epe[i] + epe[i+1])
             fva += -spread *df *exposure_mid*dt
         return float
+
+    def compute_xva(
+        self,
+        time_grid: np.ndarray,
+        underlying_paths: np.ndarray
+    ) -> XVAResults:
+
+        """
+        Compute CVA , DVA and FVA give pre-simulated underlying paths
+
+        Parameters:
+        --------------
+        time_grid : np.ndarray, shape (T+1,)
+        underlying_paths : np.ndarray, shape (N, T+1)
+
+        Returns
+        -------
+        XVAResults
+        """
+        _, epe, ene = self._expected_exposure_profiles(time_grid, underlying_paths)
+        cva = self._cva_from_epe(time_grid, epe)
+        dva = self._dva_from_ene(time_grid, ene)
+        fva = self._fva_from_epe(time_grid, epe)
+
+        return XVAResults(
+            cva=cva,
+            dva = dva,
+            fva = fva,
+            epe = epe,
+            ene = ene,
+            time_grid=time_grid.copy()
+        )
