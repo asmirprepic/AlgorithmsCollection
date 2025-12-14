@@ -473,3 +473,63 @@ class XVAEngine:
             ene = ene,
             time_grid=time_grid.copy()
         )
+
+if __name__ == "__main__":
+    # Time grid
+    T = 5.0  # years
+    n_steps = 50
+    time_grid = np.linspace(0.0, T, n_steps + 1)
+
+    # Market environment
+    r = 0.02
+    curve = FlatDiscountCurve(rate=r)
+
+    # Counterparty & own credit
+    cp_hazard = FlatHazardCurve(hazard_rate=0.02)      # 2% flat
+    own_hazard = FlatHazardCurve(hazard_rate=0.01)     # 1% flat
+    counterparty = Counterparty(
+        name="CP_A",
+        hazard_curve=cp_hazard,
+        lgd=0.6,
+        funding_spread=0.01,  # 1% funding spread
+    )
+
+    # Trades
+    trade1 = EuropeanOptionTrade(
+        strike=100.0,
+        maturity=3.0,
+        is_call=True,
+        notional=1_000_000.0,
+    )
+    trade2 = EuropeanOptionTrade(
+        strike=90.0,
+        maturity=4.0,
+        is_call=False,
+        notional=500_000.0,
+    )
+
+    netting_set = NettingSet(trades=[trade1, trade2])
+
+    engine = XVAEngine(
+        discount_curve=curve,
+        netting_set=netting_set,
+        counterparty=counterparty,
+        own_hazard_curve=own_hazard,
+    )
+
+    # Simulate paths
+    spot0 = 100.0
+    vol = 0.2
+    n_paths = 20_000
+
+    paths = engine.simulate_underlying_paths(
+        spot0=spot0,
+        time_grid=time_grid,
+        vol=vol,
+        drift=None,
+        n_paths=n_paths,
+        seed=42,
+    )
+
+    # Compute XVA
+    results = engine.compute_xva(time_grid=time_grid, underlying_paths=paths)
