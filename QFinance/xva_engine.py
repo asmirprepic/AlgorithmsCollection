@@ -56,6 +56,33 @@ class HazardCurve(Protocol):
         Survival probability S(0,t) = P(τ > t).
         """
         ...
+
+@dataclass(slots=True)
+class FlatHazardCurve:
+    """
+    Flat hazard rate curve:
+
+        λ(t) = h
+        S(0,t) = exp(-h * t)
+
+    Parameters
+    ----------
+    hazard_rate : float
+        Constant hazard rate h.
+    """
+
+    hazard_rate: float
+
+    def intensity(self, t: float) -> float:
+        if t < 0.0:
+            raise ValueError("Time t must be non-negative.")
+        return self.hazard_rate
+
+    def survival_prob(self, t: float) -> float:
+        if t < 0.0:
+            raise ValueError("Time t must be non-negative.")
+        return float(np.exp(-self.hazard_rate * t))
+
 @dataclass(slots=True)
 class EuropeanOptionTrade(Trade):
     """
