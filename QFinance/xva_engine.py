@@ -83,6 +83,45 @@ class FlatHazardCurve:
             raise ValueError("Time t must be non-negative.")
         return float(np.exp(-self.hazard_rate * t))
 
+class Trade(abc.ABC):
+    """
+    Abstract base class.
+
+    A trade knows how to compute its risk neutral mark to market
+    given simulated underlying paths
+
+    """
+
+    @abc.abstractmethod
+    def exposure_paths(
+        self,
+        time_grid: np.ndarray,
+        underlying_paths: np.ndarray,
+        discount_curve: DiscountCurve
+    ) -> np.ndarray:
+        """
+        Compute discounted mark-to-market of this trade along paths.
+
+        Parameters:
+        -------------
+        time_grid: np.ndarray, shape (T+1, )
+            Monotone increasing times, starting at 0.
+        underlying_paths: np.ndarray, shape (N, T+1)
+            Simulated underlying price paths. Underlying paths [i, j]
+            is the underlying price of path i at time t_j
+        discount_curve: DiscountCurve
+            Discount curve for PV calculation
+
+        Returns:
+        --------------
+        exposures: np.ndarray, shape (N, T+1)
+            Discounted mark-to-market per path and time,
+            from the perspective of party long the trade
+
+        """
+
+        raise NotImplementedError
+
 @dataclass(slots=True)
 class EuropeanOptionTrade(Trade):
     """
@@ -173,44 +212,7 @@ class EuropeanOptionTrade(Trade):
 
         return pv_paths
 
-class Trade(abc.ABC):
-    """
-    Abstract base class.
 
-    A trade knows how to compute its risk neutral mark to market
-    given simulated underlying paths
-
-    """
-
-    @abc.abstractmethod
-    def exposure_paths(
-        self,
-        time_grid: np.ndarray,
-        underlying_paths: np.ndarray,
-        discount_curve: DiscountCurve
-    ) -> np.ndarray:
-        """
-        Compute discounted mark-to-market of this trade along paths.
-
-        Parameters:
-        -------------
-        time_grid: np.ndarray, shape (T+1, )
-            Monotone increasing times, starting at 0.
-        underlying_paths: np.ndarray, shape (N, T+1)
-            Simulated underlying price paths. Underlying paths [i, j]
-            is the underlying price of path i at time t_j
-        discount_curve: DiscountCurve
-            Discount curve for PV calculation
-
-        Returns:
-        --------------
-        exposures: np.ndarray, shape (N, T+1)
-            Discounted mark-to-market per path and time,
-            from the perspective of party long the trade
-
-        """
-
-        raise NotImplementedError
 
 @dataclass(slots = True)
 class NettingSet:
