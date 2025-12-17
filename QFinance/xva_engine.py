@@ -1,7 +1,7 @@
 from __future__ import annotations
 import abc
 from dataclasses import dataclass, field
-from typing import Iterable, List, Optional, Protocol, Tuple
+from typing import Iterable, List, Optional, Protocol, Tuple,Dict
 
 import numpy as np
 
@@ -502,6 +502,38 @@ class XVAEngine:
             ene = ene,
             time_grid=time_grid.copy()
         )
+
+@dataclass(slots=True)
+class ExposureReport:
+    """
+    Standard exposure diagnostics used in XVA / counterparty risk.
+
+    Attributes
+    ----------
+    time_grid : np.ndarray
+        Times (years).
+    ee : np.ndarray
+        Expected exposure E[V_t].
+    epe : np.ndarray
+        Expected positive exposure E[max(V_t,0)].
+    ene : np.ndarray
+        Expected negative exposure E[min(V_t,0)].
+    pfe : Dict[float, np.ndarray]
+        Potential future exposure quantiles, keyed by q (e.g. 0.95).
+        Each array is shape (T+1,).
+    peak_epe : float
+        max_t EPE(t)
+    peak_pfe : Dict[float, float]
+        max_t PFE_q(t) for each q
+    """
+
+    time_grid: np.ndarray
+    ee: np.ndarray
+    epe: np.ndarray
+    ene: np.ndarray
+    pfe: Dict[float, np.ndarray]
+    peak_epe: float
+    peak_pfe: Dict[float, float]
 
 if __name__ == "__main__":
     # Time grid
