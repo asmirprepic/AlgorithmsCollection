@@ -535,6 +535,59 @@ class ExposureReport:
     peak_epe: float
     peak_pfe: Dict[float, float]
 
+
+    def build_exposure_report(
+        time_grid: np.ndarray,
+        exposure_paths: np.ndarray,
+        pfe_levels: Tuple[float, ...] = (0.95, 0.99),
+    ) -> ExposureReport:
+        """
+        Build a standard exposure report from pathwise exposures.
+
+        Parameters
+        ----------
+        time_grid : (T+1,)
+        exposure_paths : (N, T+1)
+            Discounted MtM/exposure paths (after netting, and after collateral
+            if you apply a CSA).
+        pfe_levels : tuple
+            Quantiles for PFE (e.g. 0.95, 0.99).
+
+        Returns
+        -------
+        ExposureReport
+        """
+        if time_grid.ndim != 1:
+            raise ValueError("time_grid must be 1D.")
+        if exposure_paths.ndim != 2:
+            raise ValueError("exposure_paths must be 2D (N, T+1).")
+        if exposure_paths.shape[1] != time_grid.shape[0]:
+            raise ValueError("exposure_paths.shape[1] must equal len(time_grid).")
+
+        ee = exposure_paths.mean(axis=0)
+        epe = np.maximum(exposure_paths, 0.0).mean(axis=0)
+        ene = np.minimum(exposure_paths, 0.0).mean(axis=0)
+
+        pfe: Dict[float, np.ndarray] = {}
+        for q in pfe_levels:
+            if not (0.0 < q < 1.0):
+                raise ValueError("PFE quantiles must be in (0,1).")
+            pfe[q] = np.quantile(exposure_paths, q=q, axis=0)
+
+        peak_epe = float(np.max(epe))
+        peak_pfe = {q: float(np.max(arr)) for q, arr in pfe.items()}
+
+        return ExposureReport(
+            time_grid=time_grid.copy(),
+            ee=ee,
+            epe=epe,
+            ene=ene,
+            pfe=pfe,
+            peak_epe=peak_epe,
+            peak_pfe=peak_pfe,
+        )
+
+
 if __name__ == "__main__":
     # Time grid
     T = 5.0  # years
