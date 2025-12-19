@@ -587,6 +587,67 @@ class ExposureReport:
             peak_pfe=peak_pfe,
         )
 
+@dataclass(slots=True)
+class XVASanityCheckResult:
+    passed: bool
+    messages: list[str]
+
+
+def run_xva_sanity_checks(
+    time_grid: np.ndarray,
+    exposure_paths: np.ndarray,
+    discount_factors: np.ndarray,
+    cva: float,
+    dva: float,
+    fva: float,
+    funding_spread: float,
+    tol: float = 1e-8,
+) -> XVASanityCheckResult:
+    """
+    Run basic sanity checks on XVA outputs.
+
+    These checks catch common modeling or integration bugs.
+    """
+    messages: list[str] = []
+    passed = True
+
+    # Shape checks
+    if exposure_paths.shape[1] != time_grid.shape[0]:
+        passed = False
+        messages.append("Exposure paths and time grid shape mismatch.")
+
+    # Exposure sign checks
+    epe = np.mean(np.maximum(exposure_paths, 0.0), axis=0)
+    ene = np.mean(np.minimum(exposure_paths, 0.0), axis=0)
+
+    if np.any(epe < -tol):
+        passed = False
+        messages.append("EPE contains negative values.")
+
+    if np.any(ene > tol):
+        passed = False
+        messages.append("ENE contains positive values.")
+
+    # CVA / DVA sign checks
+    if cva < -tol:
+        passed = False
+        messages.append("CVA is negative.")
+
+    if funding_spread >= 0 and fva > tol:
+        passed = False
+        messages.append("FVA has wrong sign for positive funding spread.")
+
+    # Discount factor monotonicity
+    if np.any(np.diff(discount_factors) > tol):
+        passed = False
+        messages.append("Discount factors are not non-increasing.")
+
+    # Terminal exposure
+    if abs(epe[-1]) > tol:
+        messages.append("Warning: EPE at maturity is not ~0.")
+
+    return XVASanityCheckResult(passed=passed, messages=messages)
+
 
 if __name__ == "__main__":
     # Time grid
