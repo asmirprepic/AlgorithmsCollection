@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, List, Sequence, Table
+from typing import Callable, List, Sequence, Tuple,Table
 import numpy as np
 
 DiscountFactorFn = Callable[[float],float]
@@ -83,3 +83,70 @@ class PieceWiseHazardCurve:
         if t1 < t0:
             raise ValueError("t1 must be >= t0.")
         return self.survival(t0) - self.survival(t1)
+
+    def generate_payment_times(maturity: float, pay_freq_per_year: int = 4) -> np.ndarray:
+        """
+        Generate CDS premium payment times from (0, maturity] at regular frequency.
+        E.g. quarterly => 4 payments /year.
+
+        Return times including maturity
+
+
+        """
+        if maturity <= 0.0:
+            raise ValueError("maturity must be > 0.")
+        if pay_freq_per_year <= 0:
+            raise ValueError("pay_freq_per_year must be positive")
+        dt = 1.0/pay_freq_per_year
+        n = int(np.round(maturity/dt))
+        times = dt * np.arange(1, n + 1, dtype = float)
+        times[-1] = maturity
+
+        return times
+
+    def _integrate_simpson(f: Callable[[np.ndarray],np.ndarray], a: float, b: float, n: int = 20) -> float:
+        """
+        Simple simpson integration on [a,b] with even n
+        """
+
+        if b <= a:
+            return 0.0
+        if n % 2 == 1:
+            n += 1
+        x= np.linspace(a,b,n+1)
+        y = f(x)
+        h = (b-a)/n
+        integral = float((h / 3.0) * (y[0] + y[-1] + 4.0 * y[1:-1:2].sum() + 2.0 * y[2:-1:2].sum()))
+
+        return integral
+
+    def cds_leg_pv(
+      *,
+      maturity: float,
+      spread: float,
+      recovery: float,
+      curve: PieceWiseHazardCurve,
+      df: DiscountFactorFn,
+      pay_per_freq: int = 4,
+      accrual_on_default: bool = True,
+    ) -> Tuple[float,float]:
+        """
+        Compute PV of premium and protection legs for CDS with given spread.
+
+        Notes:
+        -----------
+        - Premium leg is approximated with paymets at scheduled times.
+        - Protection leg is integrated (numerically) over time using survival and DF.
+        - Accrual-on-default adds an approximation for the accrued premium between
+        payment dates in case of default
+
+        Returns:
+        ---------
+        pv_premium, pv_protection
+        """
+
+        if not (0.0 <= recovery < 1.0):
+            raise ValueError("recovery must be in [0,1).")
+        if spread < 0.0:
+            raise ValueError("spread must be non-negative.")
+
