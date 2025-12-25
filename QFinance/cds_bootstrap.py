@@ -185,3 +185,6 @@ def cds_leg_pv(
         S = np.vectorize(curve.surival)(x)
         DF = np.vectorize(df)(x)
         return DF*lam*S
+
+    pv_protection = float((1.0 - recovery)* _integrate_simpson(integrand,0.0,maturity,n=60))
+    return pv_premium, pv_protection
