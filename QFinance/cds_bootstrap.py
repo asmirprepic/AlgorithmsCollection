@@ -188,3 +188,140 @@ def cds_leg_pv(
 
     pv_protection = float((1.0 - recovery)* _integrate_simpson(integrand,0.0,maturity,n=60))
     return pv_premium, pv_protection
+
+def _solve_monotone_bisection(
+    f: Callable[[float],float],
+    lo: float,
+    hi: float,
+    tol: float = 1e-10,
+    max_iter: int = 200,
+
+) -> float:
+    """
+    Robust bisection for monotone function with bracket f(lo)*f(hi) <= 0
+
+    """
+
+    flo = f(lo)
+    fhi = f(hi)
+    if np.isnan(flo) or np.isnan(fhi):
+        raise ValueError("Function returned Nan at bracket endpoints.")
+    if flo == 0.0:
+        return lo
+    if fhi == 0.0:
+        return hi
+    if flo*fhi > 0.0:
+        raise ValueError("Root not bracketed")
+
+    for _ in range(max_iter):
+        mid = 0.5 * (lo + hi)
+        fmid = f(mid)
+        if abs(mid) < tol or (hi - lo) < tol:
+            return mid
+        if flo * fmid <= 0.0:
+            hi, fhi = mid, fmid
+        else:
+            lo, flo = mid, fmid
+
+    return 0.5 * (lo + hi)
+
+def bootstrap_hazard_curve_from_cds(
+    maturities: Sequence[float],
+    spreads: Sequence[float],
+    *,
+    recovery: float,
+    df: DiscountFactorFn,
+    pay_freq_per_year: int = 4,
+    accrual_on_default: bool = True,
+    hazard_upper: float = 5.0,
+
+) -> PieceWiseHazardCurve:
+    """
+    Bootstrap a piecewise-constant hazard curve from CDS par spreads.
+
+    Solve sequentially for lambda_i on (T_{i-1},T_i) such that:
+        PV_protection(0, T_i) - PV_premium(0, T_i) = 0
+
+    Parameters:
+    --------------
+    maturities : list[float]
+        CDS maturities in years, strictly increasing.
+    spreads : list[float]
+        Par spreads (decimal, e.g. 0.0125 for 125 bps), same length as maturities.
+    recovery : float
+        Recovery rate R in [0,1).
+    df : callable
+        Discount factor function DF(t).
+    pay_freq_per_year : int
+        Premium payment frequency (4 = quarterly).
+    accrual_on_default : bool
+        Include accrued premium approximation.
+    hazard_upper : float
+        Upper bound for hazard rate search in each interval.
+
+    Returns:
+    -------------
+    PiecewiseHazardCurve
+    """
+
+    mats = np.array(maturities, dtype=float)
+    sps = np.array(spreads, dtype=float)
+
+    if mats.ndim != 1 or sps.ndim != 1 or mats.shape[0] != sps.shape[0]:
+        raise ValueError("maturities and spreads must be 1D arrays of equal length")
+    if mats.shape[0] == 0:
+        raise ValueError("Need at least one maturity")
+    if np.any(mats <= 0.0) or np.any(np.diff(mats) <= 0.0):
+        raise ValueError("maturities must be strictily increaseing and > 0")
+
+    if np.any(sps < 0.0):
+        raise ValueError("spreads must be nonnegative")
+    if not (0.0 <= recovery < 1.0):
+        raise ValueError("recovery must be in [0,1).")
+
+    hazards = np.zeros_like(mats)
+
+    # Sequential bootstrap
+    for i in range(len(mats)):
+        knots_i = mats[ : i + 1].copy()
+        hz_i = mats[ : i + 1].copy()
+
+        maturity_i = float(mats[i])
+        spread_i = float(sps[i])
+
+        def objective(lam: float) -> float:
+            hz_i[-1] = max(0.0,lam)
+            curve = PieceWiseHazardCurve(knots = knots_i, hazards = hz_i)
+            pv_prem, pv_prot = cds_leg_pv(
+                maturity = maturity_i,
+                spread = spread_i,
+                recovery = recovery,
+                curve = curve,
+                df = df,
+                pay_freq_per_year = pay_freq_per_year,
+                accrual_on_default = accrual_on_default,
+            )
+
+            return pv_prot - pv_prem
+
+        lo = 1e-12
+        hi = hazard_upper
+
+        flo = objective(lo)
+        fhi = objective(hi)
+
+        # If not bracket expand hi a bit
+        expand = 0
+        while flo * hi > 0.0 and expand < 8:
+            hi *= 2.0
+            fhi = objective(hi)
+            expand += 1
+        if flo * fhi > 0.0:
+            raise ValueError(
+                f"Could not bracket hazard root for maturity = {maturity_i}, spread = {spread_i}."
+                f"Try increasing hazard_upper or check inputs"
+            )
+
+        lam_star = _solve_monotone_bisection(objective, lo = lo, hi = hi, tol = 1e-11, max_iter = 300)
+        hazards[i] = lam_star
+    return PieceWiseHazardCurve(knits = mats, hazards = hazards)
