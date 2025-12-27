@@ -325,3 +325,98 @@ def bootstrap_hazard_curve_from_cds(
         lam_star = _solve_monotone_bisection(objective, lo = lo, hi = hi, tol = 1e-11, max_iter = 300)
         hazards[i] = lam_star
     return PieceWiseHazardCurve(knits = mats, hazards = hazards)
+
+def implied_par_spread(
+    *,
+    maturity: float,
+    recorvery: float,
+    curve: PieceWiseHazardCurve,
+    df: DiscountFactorFn,
+    pay_freq_per_year: int = 4,
+    accrual_on_default: bool = True,
+    ) -> float:
+    """
+    Compute the CDS par spread S(T) for a given maturity, hazard curve, and discount curve.
+
+    Par spread solves:
+        PV_protection(T) = S(T) * RPV01(T)
+
+    where RPV01 is the PV of paying 1bp per year premium (including accrued-on-default if enabled).
+
+    Returns
+    -------
+    spread : float
+        Par spread in decimal (e.g. 0.0125 for 125 bps).
+
+    """
+
+    if not (0.0 <= recovery < 1.0):
+        raise ValueError("recovery must be in [0,1)")
+    if maturity <= 0.0:
+        raise ValueError("maturity must be > 0.")
+
+    pay_times = generate_payment_times(maturity, pay_freq_per_year=pay_freq_per_year)
+    dt = 1.0/pay_freq_per_year
+
+    # RPV01 base: sum DF(t_i) * alpha * S(t_i)
+    surv = np.array([curve.survival(float(t)) for t in pay_times])
+    dfs = np.array([df(float(t)) for t in pay_times])
+    rpv01 = float(np.sum(dfs*dt*surv))
+
+    if accrual_on_default:
+        t_prev = 0.0
+        accr = 0.0
+        for t_i in pay_times:
+            s_prev = curve.survival(float(t_prev))
+            s_i = curve.survival(float(t_i))
+            dp = s_prev - s_i
+            t_mid = 0.5 * (t_prev + float(t_i))
+            accr += df(t_mid) * dp
+            t_prev = float(t_i)
+
+        rpv01 += float(0.5 * dt * accr)
+
+    if rpv01 <= 0.0:
+        raise ValueError("RPV01 is non-positive; check inputs/curves")
+
+    def integrand(x: np.ndarray) -> np.ndarray:
+        knots = curve.knots
+        hz = curve.hazards
+        idx = np.searchsorted(knots, x, side="left")
+        idx = np.clip(idx, 0, len(hz) - 1)
+        lam = hz[idx]
+        S = np.vectorize(curve.survival)(x)
+        DF = np.vectorize(df)(x)
+        return DF * lam * S
+
+    pv_protection = float((1.0 - recovery) * _integrate_simpson(integrand, 0.0, maturity, n=60))
+
+    spread = pv_protection / rpv01
+    return float(spread)
+
+
+if __name__ == "__main__":
+    # Example market inputs
+    curve = FlatDiscountCurve(r=0.02)
+    df = curve.df
+
+    maturities = [1, 3, 5, 7, 10]
+    spreads_bps = [80, 110, 140, 155, 170]
+    spreads = [x / 1e4 for x in spreads_bps]  # bps -> decimal
+    recovery = 0.40
+
+    hz_curve = bootstrap_hazard_curve_from_cds(
+        maturities=maturities,
+        spreads=spreads,
+        recovery=recovery,
+        df=df,
+        pay_freq_per_year=4,
+        accrual_on_default=True,
+        hazard_upper=3.0,
+    )
+
+    print("Knots:", hz_curve.knots)
+    print("Hazards:", hz_curve.hazards)
+
+    for t in [0.5, 1.0, 3.0, 5.0, 10.0]:
+        print(f"S({t:>4.1f}) = {hz_curve.survival(t):.6f}")
