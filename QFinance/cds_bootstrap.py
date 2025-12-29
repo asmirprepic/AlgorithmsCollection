@@ -19,6 +19,15 @@ class FlatDiscountCurve:
             raise   ValueError("t most be non negative")
         return float(np.exp(-self.r * t))
 
+@dataclass(slots=True)
+class CDSFitDiagnostics:
+    maturities: np.ndarray
+    market_spreads: np.ndarray
+    model_spreads: np.ndarray
+    errors_bps: np.ndarray
+    max_abs_error_bps: float
+    rmse_bps: float
+
 @dataclass(frozen=True, slots= True)
 class PieceWiseHazardCurve:
     """
@@ -325,6 +334,52 @@ def bootstrap_hazard_curve_from_cds(
         lam_star = _solve_monotone_bisection(objective, lo = lo, hi = hi, tol = 1e-11, max_iter = 300)
         hazards[i] = lam_star
     return PieceWiseHazardCurve(knits = mats, hazards = hazards)
+
+def cds_bootstrap_fit_diagnostics(
+    *,
+    maturities: Sequence[float],
+    market_spreads: Sequence[float],
+    curve: PiecewiseHazardCurve,
+    recovery: float,
+    df: DiscountFactorFn,
+    pay_freq_per_year: int = 4,
+    accrual_on_default: bool = True,
+) -> CDSFitDiagnostics:
+    mats = np.array(maturities, dtype=float)
+    mkt = np.array(market_spreads, dtype=float)
+    if mats.shape != mkt.shape:
+        raise ValueError("maturities and market_spreads must have same length.")
+    if np.any(mats <= 0.0) or np.any(np.diff(mats) <= 0.0):
+        raise ValueError("maturities must be strictly increasing and > 0.")
+
+    mdl = np.array(
+        [
+            implied_par_spread(
+                maturity=float(T),
+                recovery=recovery,
+                curve=curve,
+                df=df,
+                pay_freq_per_year=pay_freq_per_year,
+                accrual_on_default=accrual_on_default,
+            )
+            for T in mats
+        ],
+        dtype=float,
+    )
+
+    # errors in bps
+    errors_bps = (mdl - mkt) * 1e4
+    max_abs = float(np.max(np.abs(errors_bps)))
+    rmse = float(np.sqrt(np.mean(errors_bps**2)))
+
+    return CDSFitDiagnostics(
+        maturities=mats,
+        market_spreads=mkt,
+        model_spreads=mdl,
+        errors_bps=errors_bps,
+        max_abs_error_bps=max_abs,
+        rmse_bps=rmse,
+    )
 
 def implied_par_spread(
     *,
