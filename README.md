@@ -99,6 +99,7 @@ This repository is a collection of interesting algorrithms that I have come acro
 - [Cranck-Nicholson European Option](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/cranck_nicholson_european_option.py)
 - [Risk neutral density](https://github.com/asmirprepic/AlgorithmsCollection/blob/main/QFinance/risk_neutral_density.py)
 
+list to be updated
 
 
 
