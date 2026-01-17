@@ -19,7 +19,7 @@ class Dual:
     val: float
     der: float = 0.0
 
-    def __add__(self, ohter: Union[Dual, Number]) -> Dual:
+    def __add__(self, other: Union[Dual, Number]) -> Dual:
         o = _to_dual(other)
         return Dual(self.val + o.val, self.der + o.der)
 
@@ -76,3 +76,92 @@ class Dual:
         u_to_v = self.val ** p.val
         der = u_to_v * (p.der * math.log(self.val) + p.val * (self.der / self.val))
         return Dual(u_to_v, der)
+
+def _to_dual(x: Union[Dual,Number]) -> Dual:
+    return x if isinstance(x,Dual) else  Dual(float(x),0.0)
+
+
+def exp(x: Union[Dual, Number]) -> Dual:
+    x = _to_dual(x)
+    ev = math.exp(x.val)
+    return Dual(ev, ev * x.der)
+
+def log(x: Union[Dual, Number]) -> Dual:
+    x = _to_dual(x)
+    if x.val <= 0.0:
+        raise ValueError("log requires positive input.")
+    return Dual(math.log(x.val), x.der / x.val)
+
+def sqrt(x: Union[Dual, Number]) -> Dual:
+    x = _to_dual(x)
+
+    if x.val < 0.0:
+        raise ValueError("sqrt requires non-negative input.")
+    sv = math.sqrt(x.val)
+    der = 0.0 if sv == 0.0 else (0.5 * x.der / sv)
+    return Dual(sv, der)
+
+def sin(x: Union[Dual, Number]) -> Dual:
+    x = _to_dual(x)
+    return Dual(math.sin(x.val), math.cos(x.val)*x.der)
+
+def cos(x: Union[Dual, Number]) -> Dual:
+    x = _to_dual(x)
+    return Dual(math.cos(x.val), -math.sin(x.val)*x.der)
+
+def erf(x: Union[Dual, Number]) -> Dual:
+    """
+    Error function used in normal cdf
+    d/dx erf(x) = 2/sqrt(pi)*exp(-x^2)
+    """
+
+    x = _to_dual(x)
+    v = math.erf(x.val)
+    der = (2.0 / math.sqrt(math.pi)) * math.exp(-(x.val * x.val)) * x.der
+    return Dual(v, der)
+
+def normal_cdf(x: Union[Dual, Number]) -> Dual:
+    """
+    Standard normal CDF via erf.
+    """
+    x = _to_dual(x)
+    return 0.5 * (Dual(1.0, 0.0) + erf(x / math.sqrt(2.0)))
+
+def normal_pdf(x: Union[Dual, Number]) -> Dual:
+    """
+    Standard normal PDF.
+    """
+    x = _to_dual(x)
+    v = (1.0 / math.sqrt(2.0 * math.pi)) * math.exp(-0.5 * x.val * x.val)
+    # derivative of pdf not needed often, but keep for completeness:
+    der = v * (-x.val) * x.der
+    return Dual(v, der)
+
+def grad(f: Callable[[Dual], Dual], x: float) -> float:
+    """
+    First derivative f'(x) for scalar->scalar function.
+    """
+    y = f(Dual(x, 1.0))
+    return float(y.der)
+
+def value_and_grad(f: Callable[[Dual], Dual], x: float) -> Tuple[float, float]:
+    """
+    Return (f(x), f'(x)).
+    """
+    y = f(Dual(x, 1.0))
+    return float(y.val), float(y.der)
+
+def second_derivative(f: Callable[[Dual], Dual], x: float, h: float = 1e-4) -> float:
+    """
+    Quick second derivative using AD for first derivative + small FD around it.
+
+    Why not "Dual of Dual"?
+    - You can implement hyper-duals, but this keeps the module small.
+    - For most Greeks, you need 1st derivatives (delta/vega/rho).
+    - Gamma can be computed by differentiating delta with FD at a higher level.
+
+    This is still more stable than pricing FD when your pricer is expensive.
+    """
+    # d/dx f'(x) approx via central diff on AD gradient
+    return (grad(f, x + h) - grad(f, x - h)) / (2.0 * h)
+
