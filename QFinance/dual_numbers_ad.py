@@ -165,3 +165,47 @@ def second_derivative(f: Callable[[Dual], Dual], x: float, h: float = 1e-4) -> f
     # d/dx f'(x) approx via central diff on AD gradient
     return (grad(f, x + h) - grad(f, x - h)) / (2.0 * h)
 
+def bs_call_price(S: Union[Dual, Number], K: float, r: float, sigma: float, T: float) -> Dual:
+    """
+    Black–Scholes call price with Dual-capable spot S.
+
+    If S is Dual seeded with der=1, output.der == Delta.
+    """
+    S = _to_dual(S)
+    if K <= 0.0 or sigma <= 0.0 or T <= 0.0:
+        raise ValueError("K, sigma, T must be positive.")
+
+    d1 = (log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * math.sqrt(T))
+    d2 = d1 - sigma * math.sqrt(T)
+
+    return S * normal_cdf(d1) - K * math.exp(-r * T) * normal_cdf(d2)
+
+
+def bs_call_greeks_via_ad(S0: float, K: float, r: float, sigma: float, T: float) -> dict:
+    """
+    Compute Delta and Gamma via AD (Delta exact via AD; Gamma via outer FD on AD Delta),
+    plus Vega and Rho via AD seeding on those parameters as well.
+
+    This demonstrates the main pattern:
+    seed one variable at a time.
+    """
+    # Delta: seed S
+    delta = bs_call_price(Dual(S0, 1.0), K, r, sigma, T).der
+
+    # Gamma: derivative of delta wrt S using second_derivative helper
+    def price_as_fn_of_S(S: Dual) -> Dual:
+        return bs_call_price(S, K, r, sigma, T)
+
+    gamma = second_derivative(price_as_fn_of_S, S0, h=1e-3)
+
+    # Vega: seed sigma
+    def price_as_fn_of_sigma(sig: Dual) -> Dual:
+        # sigma is Dual here
+        sig = _to_dual(sig)
+        d1 = (math.log(S0 / K) + (r + 0.5 * sig.val * sig.val) * T) / (sig.val * math.sqrt(T))
+        # For vega, easiest is to implement BS in terms of Dual sigma too:
+        d1d = (log(S0 / K) + (r + 0.5 * (sig * sig)) * T) / (sig * math.sqrt(T))
+        d2d = d1d - sig * math.sqrt(T)
+        return _to_dual(S0) * normal_cdf(d1d) - K * math.exp(-r * T) * normal_cdf(d2d)
+
+    vega = price_as_fn_of_sigma(Dual(sigma, 1.0)).der
