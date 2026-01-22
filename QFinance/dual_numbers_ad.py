@@ -209,3 +209,21 @@ def bs_call_greeks_via_ad(S0: float, K: float, r: float, sigma: float, T: float)
         return _to_dual(S0) * normal_cdf(d1d) - K * math.exp(-r * T) * normal_cdf(d2d)
 
     vega = price_as_fn_of_sigma(Dual(sigma, 1.0)).der
+
+    def price_as_fn_of_r(rr: Dual) -> Dual:
+        rr = _to_dual(rr)
+        d1d = (log(S0 / K) + (rr + 0.5 * sigma * sigma) * T) / (sigma * math.sqrt(T))
+        d2d = d1d - sigma * math.sqrt(T)
+        return _to_dual(S0) * normal_cdf(d1d) - K * exp(-rr * T) * normal_cdf(d2d)
+
+    rho = price_as_fn_of_r(Dual(r, 1.0)).der
+
+    price = bs_call_price(S0, K, r, sigma, T).val
+
+    return {
+        "price": float(price),
+        "delta": float(delta),
+        "gamma": float(gamma),
+        "vega": float(vega),
+        "rho": float(rho),
+    }
