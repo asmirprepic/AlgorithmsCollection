@@ -227,3 +227,8 @@ def bs_call_greeks_via_ad(S0: float, K: float, r: float, sigma: float, T: float)
         "vega": float(vega),
         "rho": float(rho),
     }
+
+if __name__ == "__main__":
+    out = bs_call_greeks_via_ad(S0=100.0, K=100.0, r=0.02, sigma=0.2, T=1.0)
+    for k, v in out.items():
+        print(f"{k:>6s}: {v:,.8f}")
