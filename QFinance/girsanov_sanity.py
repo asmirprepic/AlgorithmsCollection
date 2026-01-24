@@ -90,3 +90,43 @@ def density_process_Z(
 
     t = time_grid[None, :]
     return np.exp(-theta * W - 0.5 * theta * theta * t)
+
+def simulate_gbm(
+    *,
+    S0: float,
+    mu: float,
+    sigma: float,
+    time_grid: np.ndarray,
+    dW: np.ndarray,
+) -> np.ndarray:
+    """
+    Simulate GBM using exact discretization:
+        S_{t+dt} = S_t * exp((mu - 0.5 sigma^2) dt + sigma dW)
+
+    dW must be Brownian increments under the measure you intend.
+    """
+    if S0 <= 0.0:
+        raise ValueError("S0 must be > 0.")
+    if sigma <= 0.0:
+        raise ValueError("sigma must be > 0.")
+    if time_grid.ndim != 1:
+        raise ValueError("time_grid must be 1D.")
+    if dW.ndim != 2:
+        raise ValueError("dW must be 2D (n_paths, n_steps).")
+
+    n_paths, n_steps = dW.shape
+    if time_grid.shape[0] != n_steps + 1:
+        raise ValueError("time_grid length must equal n_steps + 1.")
+
+    dt = np.diff(time_grid)
+    if np.any(dt <= 0.0):
+        raise ValueError("time_grid must be strictly increasing.")
+
+    S = np.empty((n_paths, n_steps + 1), dtype=float)
+    S[:, 0] = S0
+
+    for i in range(n_steps):
+        dti = float(dt[i])
+        S[:, i + 1] = S[:, i] * np.exp((mu - 0.5 * sigma * sigma) * dti + sigma * dW[:, i])
+
+    return S
