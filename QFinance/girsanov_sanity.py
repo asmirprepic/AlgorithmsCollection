@@ -155,4 +155,24 @@ def girsanov_sanity_check(
      Simulate S under Q drift mu_Q=mu_P - sigma * theta for GBM driven by W^P
      Then compute E_Q[payoff(S_T)]
 
+     For GBM:
+        dS= mu_P S dt  + sigma S dW^P
+        Under Q defined by Z , the brownian becomes:
+        dW^Q= dW^P + theta dt
+        Substitute dW^P = dW^Q - theta dt:
+          dS = (mu_P - sigma theta) S dt + sigma S dW^Q
+      hence mu_Q = mu_P - sigma*theta
+
     """
+
+    # Simulte W under P
+
+    t, Wp = simulate_brownian(T=T, n_steps=n_steps, n_paths=n_paths, seed=seed, antithetic=True)
+
+    #increments under P
+    dWp = np.diff(Wp,axis = 1)
+
+    # Density process
+    Z = density_process_Z(theta=theta,time_grid=t, W=Wp)
+    Z_mean = Z.mean(axis = 0)
+    Z_std = Z.std(axis = 0)
