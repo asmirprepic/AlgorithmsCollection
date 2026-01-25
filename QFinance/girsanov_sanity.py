@@ -130,3 +130,29 @@ def simulate_gbm(
         S[:, i + 1] = S[:, i] * np.exp((mu - 0.5 * sigma * sigma) * dti + sigma * dW[:, i])
 
     return S
+
+def girsanov_sanity_check(
+    *,
+    theta: float,
+    T:float,
+    n_steps: int,
+    n_paths: int,
+    payoff_fn: Callable[[np.ndarray],np.ndarray],
+    gbm_s0: float = 100.0,
+    gbm_sigma: float = 0.2,
+    mu_P: float = 0.0,
+    seed: Optional[int] = None,
+) -> GirsanovDiagnostics:
+    """
+    Verify change of measure numerically in clean testable way.
+
+    1. Under P: Simulate W^P, build Z_T, simulate S under P(drift mu_P)
+    Compute E_P[Z_T *payoffs((S_T))].
+
+    2. Under Q: Simulate W^Q directly by re-using W^P increments but shifting:
+     W^Q = W^P + theta * t
+     This corresponds to drift change in Brownian motion.
+     Simulate S under Q drift mu_Q=mu_P - sigma * theta for GBM driven by W^P
+     Then compute E_Q[payoff(S_T)]
+
+    """
