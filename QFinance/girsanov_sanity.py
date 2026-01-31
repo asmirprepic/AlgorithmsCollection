@@ -176,3 +176,45 @@ def girsanov_sanity_check(
     Z = density_process_Z(theta=theta,time_grid=t, W=Wp)
     Z_mean = Z.mean(axis = 0)
     Z_std = Z.std(axis = 0)
+    martingale_err = float(np.max(np.abs(Z_mean - 1.0)))
+
+    # --- simulate GBM under P using dW^P ---
+    Sp = simulate_gbm(S0=gbm_S0, mu=mu_P, sigma=gbm_sigma, time_grid=t, dW=dWp)
+    payoff_P = payoff_fn(Sp[:, -1])
+
+    # weighted expectation under P corresponds to Q expectation
+    EQ_via_P = float(np.mean(Z[:, -1] * payoff_P))
+
+    # --- simulate under Q explicitly ---
+    # W^Q = W^P + theta * t  => dW^Q = dW^P + theta dt
+    dt = np.diff(t)
+    dWq = dWp + theta * dt[None, :]
+
+    # drift adjustment mu_Q = mu_P - sigma*theta
+    mu_Q = mu_P - gbm_sigma * theta
+
+    Sq = simulate_gbm(S0=gbm_S0, mu=mu_Q, sigma=gbm_sigma, time_grid=t, dW=dWq)
+    payoff_Q = payoff_fn(Sq[:, -1])
+    EQ_direct = float(np.mean(payoff_Q))
+
+    abs_err = abs(EQ_direct - EQ_via_P)
+    rel_err = abs_err / max(1e-12, abs(EQ_direct))
+
+    details = (
+        f"theta={theta}, T={T}, n_steps={n_steps}, n_paths={n_paths}\n"
+        f"Martingale check max|E[Z_t]-1| = {martingale_err:.3e}\n"
+        f"E_Q[F] (direct)          = {EQ_direct:.8f}\n"
+        f"E_P[Z_T * F] (weighted)  = {EQ_via_P:.8f}\n"
+        f"Abs err                  = {abs_err:.3e}\n"
+        f"Rel err                  = {rel_err:.3e}\n"
+    )
+
+    return GirsanovDiagnostics(
+        time_grid=t,
+        Z_mean=Z_mean,
+        Z_std=Z_std,
+        martingale_max_abs_err=martingale_err,
+        eq_change_of_measure_abs_err=abs_err,
+        eq_change_of_measure_rel_err=rel_err,
+        details=details,
+    )
