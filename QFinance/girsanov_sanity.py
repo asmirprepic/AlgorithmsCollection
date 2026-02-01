@@ -138,7 +138,7 @@ def girsanov_sanity_check(
     n_steps: int,
     n_paths: int,
     payoff_fn: Callable[[np.ndarray],np.ndarray],
-    gbm_s0: float = 100.0,
+    gbm_S0: float = 100.0,
     gbm_sigma: float = 0.2,
     mu_P: float = 0.0,
     seed: Optional[int] = None,
@@ -218,3 +218,24 @@ def girsanov_sanity_check(
         eq_change_of_measure_rel_err=rel_err,
         details=details,
     )
+
+#Running this:
+if __name__ == "__main__":
+    K = 100.0
+
+    def call_payoff(ST: np.ndarray) -> np.ndarray:
+        return np.maximum(ST-K,0.0)
+
+    diag = girsanov_sanity_check(
+        theta = 0.7,
+        T = 1.0,
+        n_steps = 252,
+        n_paths = 50_000,
+        payoff_fn=call_payoff,
+        gbm_S0 = 100.0,
+        gbm_sigma=0.2,
+        mu_P=0.05,
+        seed = 42,
+    )
+
+    print(diag.details)
