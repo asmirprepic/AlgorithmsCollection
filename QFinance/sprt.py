@@ -65,3 +65,58 @@ class SPRTState:
         self.n = 0
         self.llr = 0.0
         self.decision = SPRTDecision.CONTINUE
+
+class GaussianSPRT:
+    """
+    Sequential Probability Ratio Test for Gaussian observations with known variance.
+
+    Uses log-likelihood ratio (LLR) updates for numerical stability.
+
+    Decision rules:
+        Accept H1 if LLR >= log((1-beta)/alpha)
+        Accept H0 if LLR <= log(beta/(1-alpha))
+        Else continue
+
+    Notes
+    -----
+    For observations x_i ~ N(mu, sigma^2), the per-sample LLR is:
+
+      log f1(x) - log f0(x)
+      = [(mu1 - mu0)/sigma^2] * x  -  (mu1^2 - mu0^2)/(2 sigma^2)
+
+    So update is O(1) per sample.
+    """
+
+    def __init__(self, cfg: SPRTConfig) -> None:
+        self.cfg = cfg
+        self.state = SPRTState()
+
+        # Thresholds in log-space
+        self.A = math.log((1.0 - cfg.beta) / cfg.alpha)         # upper threshold
+        self.B = math.log(cfg.beta / (1.0 - cfg.alpha))         # lower threshold
+
+        # Precompute LLR coefficients
+        s2 = cfg.sigma * cfg.sigma
+        self._c1 = (cfg.mu1 - cfg.mu0) / s2
+        self._c0 = - (cfg.mu1 * cfg.mu1 - cfg.mu0 * cfg.mu0) / (2.0 * s2)
+
+    def update(self, x: float) -> SPRTDecision:
+        """
+        Consume one observation and update the test.
+
+        Returns the current decision.
+        """
+        if self.state.decision != SPRTDecision.CONTINUE:
+            return self.state.decision
+
+        self.state.n += 1
+        self.state.llr += self._c1 * x + self._c0
+
+        if self.state.llr >= self.A:
+            self.state.decision = SPRTDecision.ACCEPT_H1
+        elif self.state.llr <= self.B:
+            self.state.decision = SPRTDecision.ACCEPT_H0
+        else:
+            self.state.decision = SPRTDecision.CONTINUE
+
+        return self.state.decision
