@@ -120,3 +120,38 @@ class GaussianSPRT:
             self.state.decision = SPRTDecision.CONTINUE
 
         return self.state.decision
+
+    def reset(self) -> None:
+        self.state.reset()
+
+def sprt_indifference_config(
+    *,
+    mu0: float,
+    delta: float,
+    sigma: float,
+    alpha: float = 0.01,
+    beta: float = 0.01,
+    direction: str = "positive"
+) -> SPRTConfig:
+    """
+    Convenience constructor when you want an indifference region around mu0.
+
+    If direction="positive", we test:
+      H0: mu = mu0
+      H1: mu = mu0 + delta
+
+    If direction="negative", we test:
+      H0: mu = mu0
+      H1: mu = mu0 - delta
+
+    delta should be > 0.
+    """
+    if delta <= 0.0:
+        raise ValueError("delta must be > 0")
+    if direction not in {"positive", "negative"}:
+        raise ValueError("direction must be postitve or negative")
+
+    mu1 = mu0 + delta if direction == "positive" else mu0 - delta
+    return SPRTConfig(mu0=mu0, mu1=mu1, sigma = sigma, alpha = alpha, beta = beta)
+
+if __name__ == "__main__":
