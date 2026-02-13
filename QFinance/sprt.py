@@ -155,3 +155,27 @@ def sprt_indifference_config(
     return SPRTConfig(mu0=mu0, mu1=mu1, sigma = sigma, alpha = alpha, beta = beta)
 
 if __name__ == "__main__":
+    sigma_daily = 0.01
+
+    cfg =  sprt_indifference_config(
+        mu0 = 0.0,
+        delta = 0.005,
+        sigma = sigma_daily,
+        alpha = 0.05,
+        beta = 0.01,
+        direction= 'positive'
+    )
+
+    sprt = GaussianSPRT(cfg)
+    true_mu = 0.0007
+    rng = random.Random(42)
+    for day in range(1, 5000):
+        x = rng.gauss(true_mu, sigma_daily)
+        decision = sprt.update(x)
+
+        if decision != SPRTDecision.CONTINUE:
+            print(f"Decision after {sprt.state.n} obs: {decision}, LLR={sprt.state.llr:.4f}")
+            break
+
+    if sprt.state.decision == SPRTDecision.CONTINUE:
+        print("No decision reached within stream.")
