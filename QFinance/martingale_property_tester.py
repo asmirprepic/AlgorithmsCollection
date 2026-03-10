@@ -92,3 +92,82 @@ def discounted_process(
         dfs = np.exp(-integ)
 
     return paths * dfs[None, :]
+
+def martingale_property_test(
+    process_paths: np.ndarray,
+    time_grid: np.ndarray,
+    theoretical_mean: float | np.ndarray,
+    *,
+    abs_tol: float = 1e-12,
+    rel_tol: float = 1e-12,
+    sigma_rule: float = 3.0
+) -> MartinGaleTestResult:
+    """
+    Testing if a simulated process behaves like a martingale in expectation
+    Parameters
+    ----------
+    process_paths : np.ndarray
+        Paths of the process M_t to be tested, shape (n_paths, n_steps + 1).
+        For a risk-neutral asset test, this is usually the discounted process.
+    time_grid : np.ndarray
+        Time grid, shape (n_steps + 1,).
+    theoretical_mean : float | np.ndarray
+        Theoretical expectation of M_t. Often constant and equal to M_0.
+    abs_tol : float
+        Absolute tolerance on the mean deviation.
+    rel_tol : float
+        Relative tolerance on the mean deviation.
+    sigma_rule : float
+        Additional statistical check: require
+            |sample_mean - theoretical| <= sigma_rule * std_error
+        at all times.
+
+    """
+
+    _validate_inputs(time_grid,process_paths)
+
+    n_paths = process_paths.shape[0]
+    if n_paths < 2:
+        raise ValueError("Need at least 2 paths to estimate standard error")
+    sample_mean = np.mean(process_paths, axis=0)
+    sample_std = np.std(process_paths, axis=0, ddof=1)
+    std_error = sample_std / np.sqrt(n_paths)
+
+    if np.isscalar(theoretical_mean):
+        theo = np.full_like(sample_mean, float(theoretical_mean), dtype=float)
+    else:
+        theo = np.asarray(theoretical_mean, dtype=float)
+        if theo.shape != sample_mean.shape:
+            raise ValueError("theoretical_mean array must have the same shape as time_grid.")
+
+    abs_error = np.abs(sample_mean - theo)
+    denom = np.maximum(np.abs(theo), 1e-12)
+    rel_error = abs_error / denom
+
+    max_abs_error = float(np.max(abs_error))
+    max_rel_error = float(np.max(rel_error))
+
+    abs_rel_pass = bool(np.all((abs_error <= abs_tol) | (rel_error <= rel_tol)))
+    sigma_pass = bool(np.all(abs_error <= sigma_rule * std_error + 1e-15))
+    passed = abs_rel_pass and sigma_pass
+
+    message = (
+    f"Martingale test {'PASSED' if passed else 'FAILED'} | "
+    f"max_abs_error={max_abs_error:.6e}, "
+    f"max_rel_error={max_rel_error:.6e}, "
+    f"abs_tol={abs_tol:.2e}, rel_tol={rel_tol:.2e}, "
+    f"sigma_rule={sigma_rule:.1f}"
+    )
+
+    return MartingaleTestResult(
+        time_grid=time_grid.copy(),
+        sample_mean_process=sample_mean,
+        theoretical_mean=theo,
+        abs_error=abs_error,
+        rel_error=rel_error,
+        std_error=std_error,
+        max_abs_error=max_abs_error,
+        max_rel_error=max_rel_error,
+        passed=passed,
+        message=message,
+    )
