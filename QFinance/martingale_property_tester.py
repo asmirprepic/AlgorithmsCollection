@@ -159,7 +159,7 @@ def martingale_property_test(
     f"sigma_rule={sigma_rule:.1f}"
     )
 
-    return MartingaleTestResult(
+    return MartinGaleTestResult(
         time_grid=time_grid.copy(),
         sample_mean_process=sample_mean,
         theoretical_mean=theo,
