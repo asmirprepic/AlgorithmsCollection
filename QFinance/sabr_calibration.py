@@ -124,3 +124,69 @@ def sabr_implied_vol_hagan(
         z_over_xz = z / x_z
 
     return (alpha / denom) * z_over_xz * time_corr
+
+def sabr_surface_slice_vols(
+    f: float,
+    strikes: np.ndarray,
+    t: float,
+    alpha: float,
+    beta: float,
+    rho: float,
+    nu: float
+) -> np.ndarray:
+    """
+    Compute SABR implied vol
+    """
+    strikes = np.asarray(strikes, dtype = float)
+    return np.array(
+        [sabr_implied_vol_hagan(f,k,t, alpha, beta, rho, nu) for k in strikes],
+        dtype = float
+    )
+
+def _objective(
+    x: np.ndarray,
+    f: float,
+    strikes: np.ndarray,
+    market_vols: np.ndarray,
+    t: float,
+    beta: float,
+    penalty: float = 1e6,
+
+) -> float:
+    alpha, rho, nu = x
+
+    if alpha <= 0.0 or nu < 0.0 or not (-0.999 < rho <0.999):
+        return penalty
+
+    try:
+        model_vols = sabr_surface_slice_vols(
+            f =f,
+            strikes=strikes,
+            t = t,
+            alpha=alpha,
+            beta=beta,
+            rho=rho,
+            nu = nu,
+        )
+    except Exception:
+        return penalty
+
+    if np.any(~np.isinfinite(model_vols)) or np.any(model_vols <= 0.0):
+        return penalty
+
+    err = model_vols - market_vols
+    return float(np.mean(err * err))
+
+def calibrate_sabr_slice(
+    f: float,
+    strikes: np.ndarray,
+    market_vols: np.ndarray,
+    t: float,
+    beta: float = 0.5,
+    alpha_bounds: tuple[float, float] = (1e-4, 2.0),
+    rho_bounds: tuple[float, float] = (-0.999, 0.999),
+    nu_bounds: tuple[float, float] = (1e-4, 3.0),
+    coarse_grid_size: int = 8,
+    n_refinements: int = 1500,
+    random_seed: Optional[int] = 42,
+)
