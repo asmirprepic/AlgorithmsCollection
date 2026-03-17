@@ -189,4 +189,97 @@ def calibrate_sabr_slice(
     coarse_grid_size: int = 8,
     n_refinements: int = 1500,
     random_seed: Optional[int] = 42,
-)
+) -> SABRCalibrationResult:
+    """
+    Calibrate SABR parmaters (alpha, rho, nu) for single maturity slice,
+    keeping beta fixed.
+
+    Strategy
+    ---------
+    1. Coarse grid search
+    2. Random local refinement
+    """
+    if strikes.ndim != 1 or market_vols.ndim != 1:
+        raise ValueError("strikes and market_vols must be 1D arrays.")
+    if strikes.shape[0] != market_vols.shape[0]:
+        raise ValueError("strikes and market_vols must have same length.")
+    if np.any(strikes <= 0.0):
+        raise ValueError("strikes must be positive.")
+    if np.any(market_vols <= 0.0):
+        raise ValueError("market_vols must be positive.")
+    if f <= 0.0:
+        raise ValueError("f must be positive.")
+    if t <= 0.0:
+        raise ValueError("t must be positive.")
+
+    rng = np.random.default_rng(random_seed)
+
+    alpha_grid = np.linspace(alpha_bounds[0],alpha_bounds[1],coarse_grid_size)
+    rho_grid = np.linspace(rho_bounds[0],rho_bounds[1],coarse_grid_size)
+    nu_grid = np.linspace(nu_bounds[0],nu_bounds[1],coarse_grid_size)
+
+    best_x = None
+    best_obj = float('inf')
+
+    for alpha in alpha_grid:
+        for rho in rho_grid:
+            for nu in nu_grid:
+                x = np.array([alpha,rho,nu],dtype = float)
+                obj = _objective(x,f,strikes,market_vols,t,beta)
+                if obj < best_obj:
+                    best_obj = obj
+                    best_x = x.copy()
+
+    if best_x is None:
+        raise RuntimeError("SABR coarse calibration failed")
+
+    alpha_width = 0.25*(alpha_bounds[1]-alpha_bounds[0])
+    rho_width = 0.25 * (rho_bounds[1] - rho_bounds[0])
+    nu_width = 0.25 * (nu_bounds[1] - nu_bounds[0])
+
+    for i in range(n_refinements):
+        shrink = max(0.02, 1.0 - i / max(1, n_refinements))
+
+        cand = np.array([
+            best_x[0] + rng.normal(scale=alpha_width * shrink),
+                best_x[1] + rng.normal(scale=rho_width * shrink),
+                best_x[2] + rng.normal(scale=nu_width * shrink),
+        ],dtype = float)
+        cand[0] = np.clip(cand[0], alpha_bounds[0], alpha_bounds[1])
+        cand[1] = np.clip(cand[1], rho_bounds[0], rho_bounds[1])
+        cand[2] = np.clip(cand[2], nu_bounds[0], nu_bounds[1])
+
+        obj = _objective(cand, f, strikes, market_vols, t, beta)
+        if obj < best_obj:
+            best_obj = obj
+            best_x = cand.copy()
+
+    fitted_vols = sabr_surface_slice_vols(
+        f=f,
+        strikes=strikes,
+        t=t,
+        alpha=float(best_x[0]),
+        beta=beta,
+        rho=float(best_x[1]),
+        nu=float(best_x[2]),
+    )
+
+    errors = fitted_vols - market_vols
+    rmse = float(np.sqrt(np.mean(errors ** 2)))
+    max_abs_error = float(np.max(np.abs(errors)))
+
+    return SABRCalibrationResult(
+        params=SABRParameters(
+            alpha=float(best_x[0]),
+            beta=float(beta),
+            rho=float(best_x[1]),
+            nu=float(best_x[2]),
+        ),
+        objective_value=float(best_obj),
+        market_vols=market_vols.copy(),
+        fitted_vols=fitted_vols,
+        strikes=strikes.copy(),
+        rmse=rmse,
+        max_abs_error=max_abs_error,
+    )
+
