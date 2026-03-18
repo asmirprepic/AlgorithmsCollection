@@ -283,3 +283,48 @@ def calibrate_sabr_slice(
         max_abs_error=max_abs_error,
     )
 
+if __name__ == "__main__":
+    f = 0.025
+    t = 5.0
+    beta = 0.5
+
+    true_params = SABRParameters(alpha=0.030, beta=beta, rho=-0.25, nu=0.40)
+
+    strikes = np.array([0.010, 0.015, 0.020, 0.025, 0.030, 0.035, 0.040], dtype=float)
+
+    market_vols = sabr_surface_slice_vols(
+        f=f,
+        strikes=strikes,
+        t=t,
+        alpha=true_params.alpha,
+        beta=true_params.beta,
+        rho=true_params.rho,
+        nu=true_params.nu,
+    )
+
+    #Noise
+    rng = np.random.default_rng(123)
+    market_vols = market_vols + rng.normal(scale=0.0005, size=market_vols.shape)
+
+    result = calibrate_sabr_slice(
+        f=f,
+        strikes=strikes,
+        market_vols=market_vols,
+        t=t,
+        beta=beta,
+        coarse_grid_size=7,
+        n_refinements=2000,
+        random_seed=7,
+    )
+
+    print("=== SABR Calibration Result ===")
+    print(f"alpha = {result.params.alpha:.6f}")
+    print(f"beta  = {result.params.beta:.6f}")
+    print(f"rho   = {result.params.rho:.6f}")
+    print(f"nu    = {result.params.nu:.6f}")
+    print(f"RMSE  = {result.rmse:.8f}")
+    print(f"MaxAbsError = {result.max_abs_error:.8f}")
+
+    print("\nStrike    MarketVol    FittedVol")
+    for k, vm, vf in zip(result.strikes, result.market_vols, result.fitted_vols):
+        print(f"{k:>7.4f}   {vm:>10.6f}   {vf:>10.6f}")
