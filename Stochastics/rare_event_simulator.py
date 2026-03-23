@@ -219,3 +219,90 @@ def estimate_rare_event_importance_sampling(
         ),
         wd,
     )
+def suggested_theta_for_left_tail(
+    *,
+    s0: float,
+    mu: float,
+    sigma: float,
+    T: float,
+    barrier: float,
+) -> float:
+    """
+    Heuristic tilt so that the rare event sits near the center under the tilted measure.
+
+    We want:
+        log(barrier / s0) ≈ (mu - 0.5 sigma^2)T + sigma sqrt(T) * theta
+
+    so
+        theta ≈ [log(barrier/s0) - (mu - 0.5 sigma^2)T] / (sigma sqrt(T))
+
+    For a left-tail rare event, this will usually be negative.
+    """
+    if barrier <= 0.0:
+        raise ValueError("barrier must be positive.")
+    return (
+        math.log(barrier / s0) - (mu - 0.5 * sigma * sigma) * T
+    ) / (sigma * math.sqrt(T))
+
+
+def compare_naive_vs_importance_sampling(
+    *,
+    s0: float,
+    mu: float,
+    sigma: float,
+    T: float,
+    barrier: float,
+    n_paths: int,
+    theta: Optional[float] = None,
+    seed: Optional[int] = 42,
+) -> str:
+    """
+    Run both estimators and return a compact comparison report.
+    """
+    if theta is None:
+        theta = suggested_theta_for_left_tail(
+            s0=s0,
+            mu=mu,
+            sigma=sigma,
+            T=T,
+            barrier=barrier,
+        )
+
+    naive = estimate_rare_event_naive(
+        s0=s0,
+        mu=mu,
+        sigma=sigma,
+        T=T,
+        barrier=barrier,
+        n_paths=n_paths,
+        seed=seed,
+        antithetic=True,
+    )
+
+    is_est, wd = estimate_rare_event_importance_sampling(
+        s0=s0,
+        mu=mu,
+        sigma=sigma,
+        T=T,
+        barrier=barrier,
+        n_paths=n_paths,
+        theta=theta,
+        seed=seed,
+        antithetic=True,
+    )
+
+    variance_ratio = (
+        (naive.standard_error ** 2) / (is_est.standard_error ** 2)
+        if is_est.standard_error > 0.0
+        else float("inf")
+    )
+
+    return (
+        "=== Rare Event Simulation Comparison ===\n"
+        f"S0={s0:.4f}, mu={mu:.4f}, sigma={sigma:.4f}, T={T:.4f}, barrier={barrier:.4f}\n"
+        f"Suggested/used theta = {theta:.6f}\n\n"
+        f"{naive.details}\n\n"
+        f"{is_est.details}\n\n"
+        f"Variance reduction factor ≈ {variance_ratio:.2f}x\n"
+        f"ESS / N ≈ {wd.ess / n_paths:.6f}"
+    )
