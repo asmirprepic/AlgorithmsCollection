@@ -331,6 +331,73 @@ def estimate_rare_event_naive(
         details=details,
     )
 
+def compare_path_crash_naive_vs_is(
+    *,
+    s0: float,
+    mu: float,
+    sigma: float,
+    T: float,
+    barrier: float,
+    n_steps: int,
+    n_paths: int,
+    theta: Optional[float] = None,
+    seed: Optional[int] = 42,
+) -> str:
+    """
+    Compare naive MC and importance sampling for:
+
+        P(min_{0 <= t <= T} S_t <= barrier)
+    """
+    if theta is None:
+        theta = suggested_theta_for_left_tail(
+            s0=s0,
+            mu=mu,
+            sigma=sigma,
+            T=T,
+            barrier=barrier,
+        )
+
+    naive = estimate_path_crash_event_naive(
+        s0=s0,
+        mu=mu,
+        sigma=sigma,
+        T=T,
+        barrier=barrier,
+        n_steps=n_steps,
+        n_paths=n_paths,
+        seed=seed,
+        antithetic=True,
+    )
+
+    is_est, wd = estimate_path_crash_event_importance_sampling(
+        s0=s0,
+        mu=mu,
+        sigma=sigma,
+        T=T,
+        barrier=barrier,
+        n_steps=n_steps,
+        n_paths=n_paths,
+        theta=theta,
+        seed=seed,
+        antithetic=True,
+    )
+
+    variance_ratio = (
+        (naive.standard_error ** 2) / (is_est.standard_error ** 2)
+        if is_est.standard_error > 0.0
+        else float("inf")
+    )
+
+    return (
+        "=== Path-Dependent Crash Event Comparison ===\n"
+        f"S0={s0:.4f}, mu={mu:.4f}, sigma={sigma:.4f}, T={T:.4f}, "
+        f"barrier={barrier:.4f}, n_steps={n_steps}\n"
+        f"Suggested/used theta = {theta:.6f}\n\n"
+        f"{naive.details}\n\n"
+        f"{is_est.details}\n\n"
+        f"Variance reduction factor ≈ {variance_ratio:.2f}x\n"
+        f"ESS / N ≈ {wd.ess / n_paths:.6f}"
+    )
 
 def estimate_rare_event_importance_sampling(
     *,
