@@ -570,3 +570,71 @@ def compare_naive_vs_importance_sampling(
         f"Variance reduction factor ≈ {variance_ratio:.2f}x\n"
         f"ESS / N ≈ {wd.ess / n_paths:.6f}"
     )
+def estimate_drawdown_event_naive(
+    *,
+    s0: float,
+    mu: float,
+    sigma: float,
+    T: float,
+    drawdown_level: float,
+    n_steps: int,
+    n_paths: int,
+    seed: Optional[int] = None,
+    antithetic: bool = True,
+) -> RareEventEstimate:
+    """
+    Naive Monte Carlo estimate of the event:
+
+        P( max drawdown >= drawdown_level )
+
+    where max drawdown is defined pathwise as:
+
+        max_t [ 1 - S_t / running_max_t ]
+
+    Parameters
+    ----------
+    drawdown_level : float
+        Relative drawdown threshold in (0,1), e.g. 0.30 for a 30% drawdown.
+    """
+    if not (0.0 < drawdown_level < 1.0):
+        raise ValueError("drawdown_level must be in (0,1).")
+
+    paths = simulate_gbm_paths_naive(
+        s0=s0,
+        mu=mu,
+        sigma=sigma,
+        T=T,
+        n_steps=n_steps,
+        n_paths=n_paths,
+        seed=seed,
+        antithetic=antithetic,
+    )
+
+    running_max = np.maximum.accumulate(paths, axis=1)
+    drawdowns = 1.0 - paths / running_max
+    max_drawdown = np.max(drawdowns, axis=1)
+
+    indicators = (max_drawdown >= drawdown_level).astype(float)
+
+    p_hat = float(np.mean(indicators))
+    se = float(np.std(indicators, ddof=1) / math.sqrt(n_paths))
+    rel_err = _safe_relative_error(p_hat, se)
+    count = int(np.sum(indicators))
+
+    details = (
+        f"Naive MC Drawdown Event\n"
+        f"P(max drawdown >= {drawdown_level:.2%}) ≈ {p_hat:.10f}\n"
+        f"Std. error = {se:.10f}\n"
+        f"Relative error = {rel_err:.6f}\n"
+        f"Event count = {count} / {n_paths}"
+    )
+
+    return RareEventEstimate(
+        method="naive_drawdown_mc",
+        probability_estimate=p_hat,
+        standard_error=se,
+        relative_error=rel_err,
+        n_paths=n_paths,
+        event_count=count,
+        details=details,
+    )
