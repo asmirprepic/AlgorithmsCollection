@@ -638,3 +638,44 @@ def estimate_drawdown_event_naive(
         event_count=count,
         details=details,
     )
+def find_best_theta_for_terminal_event(
+    *,
+    s0: float,
+    mu: float,
+    sigma: float,
+    T: float,
+    barrier: float,
+    n_paths: int,
+    theta_grid: np.ndarray,
+    seed: Optional[int] = None,
+) -> tuple[float, dict[float, float]]:
+    """
+    Choose theta by minimizing the sample variance of the weighted rare-event estimator.
+
+    Returns
+    -------
+    best_theta : float
+        Theta with lowest estimated variance.
+    variance_by_theta : dict[float, float]
+        Estimated variance of the weighted indicator for each theta.
+    """
+    variance_by_theta: dict[float, float] = {}
+
+    for theta in theta_grid:
+        est, _ = estimate_rare_event_importance_sampling(
+            s0=s0,
+            mu=mu,
+            sigma=sigma,
+            T=T,
+            barrier=barrier,
+            n_paths=n_paths,
+            theta=float(theta),
+            seed=seed,
+            antithetic=True,
+        )
+
+        # variance estimate from SE
+        variance_by_theta[float(theta)] = est.standard_error ** 2
+
+    best_theta = min(variance_by_theta, key=variance_by_theta.get)
+    return float(best_theta), variance_by_theta
